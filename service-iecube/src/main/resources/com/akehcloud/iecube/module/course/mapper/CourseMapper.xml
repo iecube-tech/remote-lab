@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.akehcloud.iecube.module.course.mapper.CourseMapper">
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO course
+        (id, `name`, major, summary, cover_url, creator_id, create_time, last_operate_time, last_operator_id)
+        VALUES
+        (
+        NULL, #{name}, #{major}, #{summary}, #{coverUrl}, #{creatorId}, NOW(), NOW(), #{creatorId}
+        )
+        <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <update id="modify">
+        UPDATE course
+        <set>
+            <if test="name!=null and name!=''">
+                name = #{name},
+            </if>
+            <if test="major!=null and major!=''">
+                major = #{major},
+            </if>
+            <if test="coverUrl!=null and coverUrl!=''">
+                cover_url = #{coverUrl},
+            </if>
+            <if test="summary!=null and summary!=''">
+                summary = #{summary},
+            </if>
+            last_operator_id = #{lastOperatorId},
+            last_operate_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+
+    <select id="getById" resultType="com.akehcloud.iecube.module.course.dto.CourseDTO">
+        SELECT c.*,
+               u.name            creator_name,
+               u.organization_id org_id
+        FROM course c
+                 LEFT JOIN user_info u ON c.creator_id = u.id
+        WHERE c.id = #{id}
+    </select>
+
+    <delete id="delete">
+        DELETE
+        FROM course
+        WHERE id = #{id}
+    </delete>
+
+
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM course c
+        LEFT JOIN user_info u ON c.creator_id = u.id
+        LEFT JOIN org_join_course ojc on c.id = ojc.course_id
+        <where>
+            <if test="id!=null">
+                AND c.id = #{id}
+            </if>
+            <if test="ids!=null">
+                and c.id in
+                <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
+            </if>
+            <if test="name!=null and name!=''">
+                AND c.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="organizationId != null">
+                AND ojc.org_id = #{organizationId}
+            </if>
+        </where>
+    </select>
+
+    <select id="query" resultType="com.akehcloud.iecube.module.course.dto.CourseDTO">
+        SELECT
+        c.*,
+        u.name AS creator_name,
+        o.name organization_name
+        FROM course c
+        LEFT JOIN user_info u ON c.creator_id = u.id
+        LEFT JOIN org_join_course ojc on c.id = ojc.course_id
+        LEFT JOIN organization o ON o.id = ojc.org_id
+        <where>
+            <if test="id!=null">
+                AND c.id = #{id}
+            </if>
+            <if test="ids!=null">
+                and c.id in
+                <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
+            </if>
+            <if test="name!=null and name!=''">
+                AND c.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="organizationId != null">
+                AND ojc.org_id = #{organizationId}
+            </if>
+            <if test="organizationId != null">
+                AND ojc.org_id = #{organizationId}
+            </if>
+        </where>
+        <if test="offset!=null and pageSize!=null">
+            limit #{offset}, #{pageSize}
+        </if>
+    </select>
+
+
+    <insert id="grant">
+        INSERT INTO course_grant_school
+        (school_id, course_id, creator_id, grant_time)
+        VALUES
+        <foreach collection="courseIds" separator="," item="item">
+            (
+            #{schoolId}, #{item}, #{creatorId}, NOW()
+            )
+        </foreach>
+    </insert>
+
+    <delete id="relieveGrant">
+        DELETE
+        FROM course_grant_school
+        WHERE school_id = #{schoolId}
+    </delete>
+
+
+    <insert id="saveOrgJoinCourse">
+        INSERT INTO org_join_course
+            (org_id, course_id)
+        VALUES (#{orgId}, #{courseId})
+    </insert>
+
+
+</mapper>

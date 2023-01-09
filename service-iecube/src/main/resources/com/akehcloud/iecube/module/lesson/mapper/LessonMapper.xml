@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.akehcloud.iecube.module.lesson.mapper.LessonMapper">
+
+    <select id="getLessonListByCourseId" resultType="com.akehcloud.iecube.module.lesson.dto.LessonDTO">
+        SELECT l.*, u.name AS creator_name, c.name AS course_name
+        FROM lesson l
+        INNER JOIN course c ON c.id = l.course_id
+        INNER JOIN user_info u ON l.creator_id = u.id
+        WHERE l.course_id = #{courseId}
+    </select>
+
+    <delete id="deleteByCourseId">
+        DELETE FROM lesson WHERE course_id = #{courseId}
+    </delete>
+
+    <delete id="delete">
+        DELETE FROM lesson WHERE id = #{id}
+    </delete>
+
+    <update id="modify">
+        UPDATE lesson
+        <set>
+            <if test="courseId!=null">
+                course_id = #{courseId},
+            </if>
+            <if test="name!=null and name!=''">
+                `name` = #{name},
+            </if>
+            <if test="coverUrl!=null and coverUrl!=''">
+                cover_url = #{coverUrl},
+            </if>
+            <if test="number!=null">
+                `number` = #{number},
+            </if>
+            <if test="summary!='' and summary!=null">
+                summary = #{summary},
+            </if>
+            <if test="content!=null and content!=''">
+                content =#{content},
+            </if>
+            <if test="contentUrl!=null and contentUrl!=''">
+                content_url = #{contentUrl},
+            </if>
+            <if test="contentType!=null">
+                `content_type` = #{contentType},
+            </if>
+            <if test="experimentOperationPageUrl != null">
+                experiment_operation_page_url = #{experimentOperationPageUrl},
+            </if>
+            last_operator_id = #{lastOperatorId},
+            last_operate_time = NOW(),
+        </set>
+        WHERE id = #{id}
+    </update>
+
+
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM lesson l INNER JOIN course c ON l.course_id = c.id INNER JOIN user_info u ON l.creator_id = u.id
+        <where>
+            <if test="courseId!=null">
+                AND l.course_id = #{courseId}
+            </if>
+            <if test="name!=null and name!=''">
+                AND l.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+        </where>
+    </select>
+    <select id="query" resultType="com.akehcloud.iecube.module.lesson.dto.LessonDTO">
+        SELECT l.*,u.name AS creator_name,c.name AS course_name FROM lesson l INNER JOIN course c ON c.id = l.course_id INNER JOIN user_info u ON l.creator_id = u.id
+        <where>
+            <if test="courseId!=null">
+                AND l.course_id = #{courseId}
+            </if>
+            <if test="name!=null and name!=''">
+                AND l.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+        </where>
+        <if test="offset!=null and pageSize!=null">
+            limit #{offset}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="getLessonById" resultType="com.akehcloud.iecube.module.lesson.dto.LessonDTO">
+        SELECT l.*,u.name AS creator_name,c.name AS course_name FROM lesson l INNER JOIN course c ON c.id = l.course_id INNER JOIN user_info u ON l.creator_id = u.id
+        WHERE l.id = #{id}
+    </select>
+
+    <insert id="bindLessonAttachmentList">
+        INSERT INTO lesson_join_attachment
+        (lesson_id,`key`)
+        VALUES
+        <foreach collection="attachmentList" separator="," item="item">
+            (
+            #{lessonId}, #{item.key}
+            )
+        </foreach>
+    </insert>
+    <delete id="deleteLessonAttachmentList">
+        DELETE FROM lesson_join_attachment WHERE lesson_id = #{lessonId}
+    </delete>
+
+    <select id="getAttachmentKeyList" resultType="java.lang.String">
+        SELECT `key` FROM lesson_join_attachment WHERE lesson_id = #{lessonId}
+    </select>
+
+    <select id="getSimpleLessonList" resultType="com.akehcloud.iecube.module.lesson.dto.SimpleLessonDTO">
+        SELECT id,`name`
+        FROM lesson WHERE course_id = #{courseId}
+    </select>
+
+
+</mapper>

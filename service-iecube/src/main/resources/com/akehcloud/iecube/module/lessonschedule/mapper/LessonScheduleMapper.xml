@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.akehcloud.iecube.module.lessonschedule.mapper.LessonScheduleMapper">
+
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO lesson_schedule
+        (
+        id, school_id, lesson_id, start_date, end_date, start_time, end_time, weight, homework_require,
+        appointment_duration, appointment_count, assistant_id, creator_id, create_time, last_operate_time,
+        last_operator_id
+        )
+        VALUES
+        (
+        NULL, #{schoolId}, #{lessonId}, #{startDate}, #{endDate}, #{startTime}, #{endTime}, #{weight},
+        #{homeworkRequire}, #{appointmentDuration}, #{appointmentCount}, #{assistantId}, #{creatorId}, NOW(), NOW(),
+        #{creatorId}
+        )
+        <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <delete id="delete">
+        DELETE
+        FROM lesson_schedule
+        WHERE id = #{id}
+    </delete>
+
+    <select id="byId" resultMap="LessonScheduleVO">
+        SELECT
+        <include refid="LessonScheduleVO_Field"></include>
+        FROM lesson_schedule lc
+        INNER JOIN user_info u ON u.id = lc.creator_id
+        INNER JOIN lesson l ON lc.lesson_id = l.id
+        INNER JOIN course c ON l.course_id = c.id
+        WHERE lc.id = #{id}
+    </select>
+
+    <sql id="LessonScheduleVO_Field">
+        lc.id id,
+        lc.start_date start_date,
+        lc.end_date end_date,
+        lc.start_time start_time,
+        lc.end_time end_time,
+        lc.appointment_duration appointment_duration,
+        lc.appointment_count appointment_count,
+        lc.homework_require homework_require,
+        lc.weight weight,
+        lc.assistant_id,
+        l.id lesson_id,
+        l.name lesson_name,
+        l.experiment_operation_page_url experiment_operation_page_url,
+        c.id course_id,
+        c.name course_name,
+        u.name teacher_name
+    </sql>
+
+    <resultMap id="LessonScheduleVO" type="com.akehcloud.iecube.module.lessonschedule.vo.LessonScheduleVO">
+        <id column="id" property="id"/>
+        <result column="lesson_id" property="lessonId"/>
+        <result column="lesson_name" property="lessonName"/>
+        <result column="experiment_operation_page_url" property="experimentOperationPageUrl"/>
+        <result column="course_id" property="courseId"/>
+        <result column="course_name" property="courseName"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="appointment_duration" property="appointmentDuration"/>
+        <result column="appointment_count" property="appointmentCount"/>
+        <result column="homework_require" property="homeworkRequire"/>
+        <result column="weight" property="weight"/>
+        <result column="teacher_name" property="teacherName"/>
+    </resultMap>
+
+    <update id="modify">
+        UPDATE lesson_schedule
+        <set>
+            <if test="lessonId!=null">
+                lesson_id = #{lessonId},
+            </if>
+            <if test="startDate!=null">
+                start_date = #{startDate},
+            </if>
+            <if test="endDate!=null">
+                end_date = #{endDate},
+            </if>
+            <if test="startTime!=null">
+                start_time = #{startTime},
+            </if>
+            <if test="endTime!=null">
+                end_time = #{endTime},
+            </if>
+            <if test="weight!=null">
+                weight = #{weight},
+            </if>
+            <if test="homeworkRequire!=null and homeworkRequire!=''">
+                homework_require = #{homeworkRequire},
+            </if>
+            <if test="appointmentDuration!=null">
+                appointment_duration = #{appointmentDuration},
+            </if>
+            <if test="appointmentCount!=null">
+                appointment_count = #{appointmentCount},
+            </if>
+            <if test="assistantId!=null">
+                assistant_id = #{assistantId},
+            </if>
+            last_operate_time = NOW(),
+            last_operator_id = #{lastOperatorId}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="studentCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM lesson_schedule_join_student
+        WHERE lesson_schedule_id = #{id}
+    </select>
+
+    <select id="getStudentIds" resultType="java.lang.Long">
+        SELECT student_id
+        FROM lesson_schedule_join_student
+        WHERE lesson_schedule_id = #{id}
+    </select>
+
+
+    <insert id="bindHomeworkAttachment">
+        INSERT INTO attachment_join_homework
+        (`key`, lesson_schedule_id)
+        VALUES
+        <foreach collection="homeworkAttachmentKeys" separator="," item="item">
+            (
+            #{item}, #{id}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteHomeworkAttachment">
+        DELETE
+        FROM attachment_join_homework
+        WHERE lesson_schedule_id = #{id}
+    </delete>
+
+    <select id="getAttachmentKeyList" resultType="java.lang.String">
+        SELECT `key`
+        FROM attachment_join_homework
+        WHERE lesson_schedule_id = #{id}
+    </select>
+
+    <delete id="deleteDeviceList">
+        DELETE
+        FROM lesson_schedule_join_device
+        WHERE lesson_schedule_id = #{id}
+    </delete>
+
+    <select id="getDeviceList" resultType="com.akehcloud.iecube.module.lessonschedule.dto.DeviceOperatingDTO">
+        SELECT lsjd.device_id AS id,
+               d.name         AS device_name,
+               d.device_id    AS device_id,
+               d.location     as location
+        FROM lesson_schedule_join_device lsjd
+                 INNER JOIN device d ON d.id = lsjd.device_id
+        WHERE lesson_schedule_id = #{id}
+    </select>
+
+
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM lesson_schedule ls
+        INNER JOIN user_info u ON u.id = ls.creator_id
+        INNER JOIN lesson l ON ls.lesson_id = l.id
+        INNER JOIN course c ON c.id = l.course_id
+        <where>
+            AND ls.school_id = #{schoolId}
+            <if test="teacherName!=null and teacherName!=''">
+                AND u.name LIKE CONCAT('%', #{teacherName}, '%')
+            </if>
+            <if test="teacherId!=null">
+                AND (ls.creator_id = #{teacherId} OR ls.assistant_id = #{teacherId})
+            </if>
+            <if test="lessonId!=null">
+                AND ls.lesson_id = #{lessonId}
+            </if>
+            <if test="courseId!=null">
+                AND l.course_id = #{courseId}
+            </if>
+            <if test="timeStatus == @com.akehcloud.iecube.enums.lessonschedule.LessonScheduleEnum@END">
+                AND (NOW() > ls.end_date AND ls.end_date != DATE_FORMAT(NOW(),'%y-%m-%d'))
+            </if>
+            <if test="timeStatus == @com.akehcloud.iecube.enums.lessonschedule.LessonScheduleEnum@CURRENT">
+                AND ls.end_date >= DATE_FORMAT(NOW(),'%y-%m-%d')
+            </if>
+        </where>
+    </select>
+
+    <select id="query" resultType="com.akehcloud.iecube.module.lessonschedule.dto.LessonScheduleDTO">
+        SELECT
+        ls.*,
+        u.name AS teacher_name,
+        l.name AS lesson_name,
+        c.name AS course_name,
+        assistant.name AS assistant_name
+        FROM lesson_schedule ls
+        INNER JOIN user_info u ON u.id = ls.creator_id
+        INNER JOIN lesson l ON ls.lesson_id = l.id
+        INNER JOIN course c ON c.id = l.course_id
+        LEFT JOIN user_info assistant ON ls.assistant_id = assistant.id
+        <where>
+            AND ls.school_id = #{schoolId}
+            <if test="teacherName!=null and teacherName!=''">
+                AND u.name LIKE CONCAT('%', #{teacherName}, '%')
+            </if>
+            <if test="teacherId!=null">
+                AND (ls.creator_id = #{teacherId} OR ls.assistant_id = #{teacherId})
+            </if>
+            <if test="lessonId!=null">
+                AND ls.lesson_id = #{lessonId}
+            </if>
+            <if test="courseId!=null">
+                AND l.course_id = #{courseId}
+            </if>
+            <if test="timeStatus == @com.akehcloud.iecube.enums.lessonschedule.LessonScheduleEnum@END">
+                AND (NOW() > ls.end_date AND ls.end_date != DATE_FORMAT(NOW(),'%y-%m-%d'))
+            </if>
+            <if test="timeStatus == @com.akehcloud.iecube.enums.lessonschedule.LessonScheduleEnum@CURRENT">
+                AND ls.end_date >= DATE_FORMAT(NOW(),'%y-%m-%d')
+            </if>
+        </where>
+        <if test="offset!=null and pageSize!=null">
+            limit #{offset}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="existByIdAndCreatorId" resultType="java.lang.Boolean">
+        SELECT EXISTS(SELECT * FROM lesson_schedule WHERE creator_id = #{creatorId} AND id = #{id})
+    </select>
+
+    <select id="getSimpleLessonScheduleList"
+            resultType="com.akehcloud.iecube.module.lesson.dto.SimpleLessonDTO">
+        SELECT l.id, l.name
+        FROM lesson_schedule ls
+                 INNER JOIN lesson l ON ls.lesson_id = l.id
+                 INNER JOIN course c ON l.course_id = c.id
+        WHERE c.id = #{courseId}
+          AND ls.creator_id = #{teacherId}
+    </select>
+
+    <select id="getDeviceOperating"
+            resultType="com.akehcloud.iecube.module.lessonschedule.dto.DeviceOperatingDTO">
+        SELECT lsjd.lesson_schedule_id,
+               c.device_id AS device_id,
+               c.name      AS device_name,
+               c.location  AS location,
+               c.live_url  AS live_url
+        FROM lesson_schedule_join_device lsjd
+                 INNER JOIN device c ON lsjd.device_id = c.id
+        WHERE lsjd.lesson_schedule_id = #{id}
+          AND lsjd.device_id = #{deviceId}
+    </select>
+
+    <select id="checkBindDeviceTime" resultType="com.akehcloud.iecube.module.lessonschedule.dto.LessonScheduleDTO">
+        SELECT ls.*
+        FROM lesson_schedule ls
+                 LEFT JOIN lesson_schedule_join_device lsjd ON ls.id = lsjd.lesson_schedule_id
+        WHERE lsjd.device_id = #{deviceId}
+          AND (ls.start_date BETWEEN #{startDate} AND #{endDate} OR
+               ls.end_date BETWEEN #{startDate} AND #{endDate})
+          AND (ls.start_time BETWEEN #{startTime} AND #{endTime}
+            OR ls.end_time BETWEEN #{startTime} AND #{endTime})
+        LIMIT 1
+
+    </select>
+
+    <select id="lessonScheduleTimeExpire" resultType="java.lang.Boolean">
+        SELECT EXISTS(
+                       SELECT *
+                       FROM lesson_schedule
+                       WHERE id = #{lessonScheduleId}
+                         AND DATE_FORMAT(NOW(), '%Y-%M-%D') > end_date
+                   )
+    </select>
+
+    <select id="checkExistsLessonScheduleJoinDevice" resultType="java.lang.Boolean">
+        SELECT EXISTS(
+                       SELECT *
+                       FROM lesson_schedule_join_device
+                       WHERE lesson_schedule_id = #{lessonScheduleId}
+                         AND device_id = #{deviceId}
+                   )
+    </select>
+
+
+    <insert id="bindLessonScheduleJoinDevice">
+        INSERT INTO lesson_schedule_join_device
+            (lesson_schedule_id, device_id)
+        VALUES (#{lessonScheduleId}, #{device.id})
+    </insert>
+</mapper>

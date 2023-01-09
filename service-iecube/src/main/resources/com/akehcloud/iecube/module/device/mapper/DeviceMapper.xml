@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.akehcloud.iecube.module.device.mapper.DeviceMapper">
+
+    <insert id="bindCourse">
+        INSERT INTO device_join_course (device_id, course_id)
+        VALUES
+        <foreach collection="courseIdList" separator="," item="item">
+            (#{deviceId}, #{item})
+        </foreach>
+    </insert>
+
+    <delete id="deleteBindCourse">
+        DELETE
+        FROM device_join_course
+        WHERE device_id = #{deviceId}
+    </delete>
+
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM (
+        SELECT DISTINCT(d.id) id FROM device d
+        <if test="courseId != null">
+            LEFT JOIN device_join_course djc on d.id = djc.device_id
+        </if>
+        <where>
+            <if test="name!=null and name!=''">
+                AND d.`name` LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="location!=null and location!=''">
+                AND d.location = #{location}
+            </if>
+            <if test="schoolId!=null">
+                AND d.school_id = #{schoolId}
+            </if>
+            <if test="creatorId != null">
+                AND d.creator_id = #{creatorId}
+            </if>
+            <if test="courseId != null">
+                AND djc.course_id = #{courseId}
+            </if>
+        </where>
+        ) t
+    </select>
+
+    <select id="query" resultType="com.akehcloud.iecube.module.device.dto.DeviceDTO">
+        SELECT * FROM device d
+        INNER JOIN (
+        SELECT DISTINCT(d.id) id FROM device d
+        <if test="courseId != null">
+            LEFT JOIN device_join_course djc on d.id = djc.device_id
+        </if>
+        <where>
+            <if test="name!=null and name!=''">
+                AND d.`name` LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="location!=null and location!=''">
+                AND d.location = #{location}
+            </if>
+            <if test="schoolId!=null">
+                AND d.school_id = #{schoolId}
+            </if>
+            <if test="creatorId != null">
+                AND d.creator_id = #{creatorId}
+            </if>
+            <if test="courseId != null">
+                AND djc.course_id = #{courseId}
+            </if>
+        </where>
+        ) t ON d.id = t.id
+        <if test="offset!=null and pageSize!=null">
+            limit #{offset},#{pageSize}
+        </if>
+    </select>
+
+    <select id="getDeviceListByIds" resultType="com.akehcloud.iecube.module.device.dto.DeviceDTO">
+        SELECT * FROM device WHERE id IN
+        <foreach collection="deviceIds" separator="," item="item">#{item}</foreach>
+    </select>
+
+    <select id="listBindCourseId" resultType="java.lang.Long">
+        SELECT course_id
+        FROM device_join_course
+        WHERE device_id = #{id}
+    </select>
+
+
+</mapper>

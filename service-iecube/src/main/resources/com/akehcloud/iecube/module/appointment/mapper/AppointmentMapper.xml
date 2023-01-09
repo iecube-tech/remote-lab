@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.akehcloud.iecube.module.appointment.mapper.AppointmentMapper">
+
+    <insert id="batchSave">
+        INSERT INTO appointment
+        (
+        lesson_schedule_id, device_id, appointment_date, start_time, end_time, status, student_id
+        )
+        VALUES
+        <foreach collection="dtoList" separator="," item="item">
+            (
+            #{item.lessonScheduleId}, #{item.deviceId}, #{item.appointmentDate}, #{item.startTime}, #{item.endTime},
+            #{item.status}, NULL
+            )
+        </foreach>
+    </insert>
+
+    <update id="appointment" parameterType="com.akehcloud.iecube.module.appointment.entity.AppointmentDO">
+        UPDATE appointment
+        SET status     = false,
+            student_id = #{studentId}
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+          AND device_id = #{deviceId}
+          AND appointment_date = #{appointmentDate}
+          AND start_time = #{startTime}
+          AND end_time = #{endTime}
+    </update>
+
+    <delete id="deleteByLessonScheduleId">
+        DELETE
+        FROM appointment
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+    </delete>
+
+    <update id="cancel" parameterType="com.akehcloud.iecube.module.appointment.entity.AppointmentDO">
+        UPDATE appointment
+        SET status     = true,
+            student_id = NULL
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+          AND device_id = #{deviceId}
+          AND appointment_date = #{appointmentDate}
+          AND start_time = #{startTime}
+          AND end_time = #{endTime}
+    </update>
+
+
+    <select id="exitsAppointmentLeisure" resultType="java.lang.Boolean">
+        SELECT status
+        FROM appointment
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+          AND device_id = #{deviceId}
+          AND appointment_date = #{appointmentDate}
+          AND start_time = #{startTime}
+          AND end_time = #{endTime}
+    </select>
+
+
+    <select id="getByLessonScheduleId" resultType="com.akehcloud.iecube.module.appointment.dto.AppointmentDTO">
+        SELECT *
+        FROM appointment
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+    </select>
+
+    <select id="lessonScheduleAppointmentList" resultType="com.akehcloud.iecube.module.appointment.dto.AppointmentDTO">
+        SELECT *
+        FROM appointment
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+          AND device_id = #{deviceId}
+          AND appointment_date = #{appointmentDate}
+    </select>
+
+    <select id="getAppointmentByStudentIdAndLessonScheduleId"
+            resultType="com.akehcloud.iecube.module.appointment.dto.AppointmentDTO">
+        SELECT *
+        FROM appointment
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+          AND student_id = #{studentId}
+        ORDER BY appointment_date, start_time
+    </select>
+
+
+    <select id="myAppointmentCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM appointment a
+                 INNER JOIN lesson_schedule ls ON a.lesson_schedule_id = ls.id
+                 INNER JOIN lesson l ON ls.lesson_id = l.id
+        WHERE a.student_id = #{studentId}
+    </select>
+
+    <select id="myAppointment" resultType="com.akehcloud.iecube.module.appointment.vo.AppointmentVO">
+        SELECT
+        <include refid="AppointmentVO_Field"/>
+        FROM appointment a
+        LEFT JOIN device d ON d.id = a.device_id
+        LEFT JOIN lesson_schedule ls ON a.lesson_schedule_id = ls.id
+        LEFT JOIN lesson_schedule_join_device lsjd ON lsjd.lesson_schedule_id = ls.id
+        LEFT JOIN lesson l ON ls.lesson_id = l.id
+        WHERE a.student_id = #{studentId}
+    </select>
+
+    <select id="countByStudentIdAndLessonScheduleId" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM appointment
+        WHERE student_id = #{studentId}
+          AND lesson_schedule_id = #{lessonScheduleId}
+    </select>
+
+    <select id="getAppointment" resultType="com.akehcloud.iecube.module.appointment.dto.AppointmentDTO">
+        SELECT *
+        FROM appointment
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+          AND device_id = #{deviceId}
+          AND appointment_date = #{appointmentDate}
+          AND start_time = #{startTime}
+          AND end_time = #{endTime}
+    </select>
+
+    <sql id="AppointmentVO_Field">
+        l.id lesson_id,
+        l.name lesson_name,
+        l.cover_url lesson_cover_url,
+        ls.id lesson_schedule_id,
+        d.id device_id,
+        d.name device_name,
+        a.appointment_date appointment_date,
+        a.start_time start_time,
+        a.end_time end_time
+    </sql>
+</mapper>

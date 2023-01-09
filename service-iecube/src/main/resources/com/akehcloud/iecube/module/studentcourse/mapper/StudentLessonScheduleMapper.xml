@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.akehcloud.iecube.module.studentcourse.mapper.StudentLessonScheduleMapper">
+
+    <insert id="batchSave">
+        INSERT INTO lesson_schedule_join_student
+        (
+         student_id, lesson_schedule_id, score, appointment_count
+         )
+         VALUES
+        <foreach collection="list" separator="," item="item">
+            (
+            #{item.studentId}, #{item.lessonScheduleId}, #{item.score}, #{item.appointmentCount}
+            )
+        </foreach>
+    </insert>
+
+    <update id="addAppointmentCount">
+        UPDATE lesson_schedule_join_student
+        SET appointment_count = appointment_count + #{count}
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+        AND student_id = #{studentId}
+    </update>
+
+    <delete id="deleteByLessonScheduleId">
+        DELETE FROM lesson_schedule_join_student
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+    </delete>
+
+    <delete id="deleteByLessonScheduleIdAndStudentIds">
+        DELETE FROM lesson_schedule_join_student
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+        AND student_id IN <foreach collection="studentIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+    </delete>
+
+    <select id="getStudentIdsByLessonScheduleId" resultType="java.lang.Long">
+        SELECT student_id FROM lesson_schedule_join_student
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+    </select>
+
+</mapper>

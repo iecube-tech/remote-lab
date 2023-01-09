@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.akehcloud.iecube.module.user.mapper.UserMapper">
+
+    <select id="getByEmail" resultType="com.akehcloud.iecube.module.user.dto.UserDTO">
+        SELECT *
+        FROM user_info
+        WHERE email = #{email}
+    </select>
+
+    <select id="getUserListByIds" resultType="com.akehcloud.iecube.module.user.dto.UserDTO">
+        SELECT * FROM user_info WHERE id IN
+        (<foreach collection="studentIds" separator="," item="item">#{item}</foreach>)
+    </select>
+
+    <select id="list" resultType="com.akehcloud.iecube.module.user.dto.UserDTO">
+        SELECT * FROM user_info
+        <where>
+            <if test="idIn != null and idIn.size > 0">
+                AND id IN
+                <foreach collection="idIn" open="(" separator="," close=")" item="item">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="organizationId != null">
+                AND organization_id = #{organizationId}
+            </if>
+            <if test="schoolId != null">
+                AND school_id = #{schoolId}
+            </if>
+            <if test="keywords != null and keywords != ''">
+                AND (
+                name LIKE CONCAT('%', #{keywords}, '%') OR
+                email LIKE CONCAT('%', #{keywords}, '%')
+                )
+            </if>
+            <if test="num != null and num != ''">
+                AND num = #{num}
+            </if>
+            <if test="faculty != null and faculty != ''">
+                AND faculty = #{faculty}
+            </if>
+            <if test="grade != null and grade != ''">
+                AND grade = #{grade}
+            </if>
+            <if test="gradeClass != null and gradeClass != ''">
+                AND grade_class = #{gradeClass}
+            </if>
+            <if test="type!=null">
+                AND `type` = #{type}
+            </if>
+            <if test="typeList !=null and typeList.size > 0">
+                AND `type` IN
+                <foreach collection="typeList" open="(" separator="," close=")" item="item">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="schoolStatus!=null">
+                AND `school_status` = #{schoolStatus}
+            </if>
+        </where>
+        <if test="pageSize != null and offset != null">
+            LIMIT #{offset}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM user_info
+        <where>
+            <if test="organizationId != null">
+                AND organization_id = #{organizationId}
+            </if>
+            <if test="schoolId != null">
+                AND school_id = #{schoolId}
+            </if>
+            <if test="keywords != null and keywords != ''">
+                AND (
+                name LIKE CONCAT('%', #{keywords}, '%') OR
+                email LIKE CONCAT('%', #{keywords}, '%')
+                )
+            </if>
+            <if test="num != null and num != ''">
+                AND num = #{num}
+            </if>
+            <if test="faculty != null and faculty != ''">
+                AND faculty = #{faculty}
+            </if>
+            <if test="grade != null and grade != ''">
+                AND grade = #{grade}
+            </if>
+            <if test="gradeClass != null and gradeClass != ''">
+                AND grade_class = #{gradeClass}
+            </if>
+            <if test="type!=null">
+                AND `type` = #{type}
+            </if>
+            <if test="schoolStatus!=null">
+                AND `school_status` = #{schoolStatus}
+            </if>
+        </where>
+    </select>
+
+</mapper>

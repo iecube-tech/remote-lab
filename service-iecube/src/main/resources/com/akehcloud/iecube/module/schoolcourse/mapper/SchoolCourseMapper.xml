@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.akehcloud.iecube.module.schoolcourse.mapper.SchoolCourseMapper">
+
+    <insert id="grant">
+        INSERT INTO course_grant_teacher
+        (
+        school_id, course_id, teacher_id, creator_id, grant_time
+        )
+        VALUES
+        <foreach collection="teacherIds" separator="," item="item">
+            (
+            #{schoolId}, #{courseId}, #{item}, #{creatorId}, NOW()
+            )
+        </foreach>
+    </insert>
+
+    <delete id="relieveGrant">
+        DELETE
+        FROM course_grant_teacher
+        WHERE school_id = #{schoolId}
+          AND course_id = #{courseId}
+    </delete>
+    <delete id="cancelGrant">
+        DELETE
+        FROM course_grant_teacher
+        WHERE school_id = #{schoolId}
+          AND course_id = #{courseId}
+          AND teacher_id = #{teacherId}
+    </delete>
+
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM course c INNER JOIN course_grant_school cs ON c.id = cs.course_id INNER JOIN
+        org_join_course oc ON c.id = oc.course_id INNER JOIN organization o ON oc.org_id = o.id
+        <where>
+            <if test="name!=null">
+                AND c.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="ids!=null">
+                AND c.id in
+                <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
+            </if>
+            AND cs.school_id = #{schoolId}
+        </where>
+    </select>
+
+    <select id="query" resultType="com.akehcloud.iecube.module.schoolcourse.dto.SchoolCourseDTO">
+        SELECT c.*, o.name AS provider FROM course c INNER JOIN course_grant_school cs ON c.id = cs.course_id INNER JOIN
+        org_join_course oc ON c.id = oc.course_id INNER JOIN organization o ON oc.org_id = o.id
+        <where>
+            <if test="name!=null">
+                AND c.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="ids!=null">
+                AND c.id in
+                <foreach collection="ids" open="(" close=")" separator="," item="item">#{item}</foreach>
+            </if>
+            AND cs.school_id = #{schoolId}
+        </where>
+        <if test="offset!=null and pageSize!=null">
+            limit #{offset},#{pageSize}
+        </if>
+    </select>
+
+    <select id="listGrantUser" resultType="com.akehcloud.iecube.module.user.dto.UserDTO">
+        SELECT u.*
+        FROM course_grant_teacher cgt,
+             user_info u
+        WHERE cgt.teacher_id = u.id
+          AND u.`type` = 'TEACHER'
+          AND cgt.school_id = #{schoolId}
+          AND cgt.course_id = #{courseId}
+    </select>
+
+    <select id="getSimpleSchoolCourseList" resultType="com.akehcloud.iecube.module.course.dto.SimpleCourseDTO">
+        SELECT c.id, c.name
+        FROM course c
+                 INNER JOIN course_grant_school cs ON c.id = cs.course_id
+        WHERE cs.school_id = #{schoolId}
+    </select>
+
+    <select id="getSimpleTeacherCourseList"
+            resultType="com.akehcloud.iecube.module.course.dto.SimpleCourseDTO">
+        SELECT c.id, c.name
+        FROM course c
+                 INNER JOIN course_grant_teacher cgt ON c.id = cgt.course_id
+        WHERE cgt.teacher_id = #{teacherId}
+    </select>
+
+</mapper>

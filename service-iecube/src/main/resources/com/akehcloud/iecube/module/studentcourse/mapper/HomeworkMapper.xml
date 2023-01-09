@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.akehcloud.iecube.module.studentcourse.mapper.HomeworkMapper">
+
+    <update id="update">
+        UPDATE lesson_schedule_join_student
+        SET `key` = #{key}
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+          AND student_id = #{studentId}
+    </update>
+
+
+    <update id="score">
+        UPDATE lesson_schedule_join_student
+        SET score = #{score}
+        WHERE student_id = #{studentId}
+          AND lesson_schedule_id = #{lessonScheduleId}
+    </update>
+
+
+    <select id="existByLessonScheduleIdAndStudentId" resultType="java.lang.Boolean">
+        SELECT EXISTS(
+                       SELECT *
+                       FROM lesson_schedule_join_student
+                       WHERE lesson_schedule_id = #{lessonScheduleId}
+                         AND student_id = #{studentId}
+                   )
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM lesson_schedule_join_student lsjs
+        LEFT JOIN lesson_schedule ls ON lsjs.lesson_schedule_id = ls.id
+        INNER JOIN lesson l ON ls.lesson_id = l.id
+        INNER JOIN course c ON l.course_id = c.id
+        LEFT JOIN user_info student ON lsjs.student_id = student.id
+        LEFT JOIN user_info teacher ON ls.creator_id = teacher.id
+        <where>
+            AND lsjs.key IS NOT NULL
+            <if test="studentId != null">
+                AND lsjs.student_id = #{studentId}
+            </if>
+            <if test="schoolId!=null">
+                AND ls.school_id = #{schoolId}
+            </if>
+            <if test="keywords!=null and keywords!=''">
+                AND (student.name LIKE CONCAT('%', #{keywords}, '%')
+                OR student.email LIKE CONCAT('%', #{keywords}, '%')
+                OR student.num LIKE CONCAT('%', #{keywords}, '%'))
+            </if>
+            <if test="num!=null and num!=''">
+                AND student.num = #{num}
+            </if>
+            <if test="faculty!=null and faculty!=''">
+                AND student.faculty = #{faculty}
+            </if>
+            <if test="grade!=null and grade!=''">
+                AND student.grade = #{grade}
+            </if>
+            <if test="gradeClass!=null and gradeClass!=''">
+                AND student.grade_class = #{gradeClass}
+            </if>
+            <if test="courseId!=null">
+                AND c.id = #{courseId}
+            </if>
+            <if test="lessonId!=null">
+                AND l.id = #{lessonId}
+            </if>
+            <if test="teacherId!=null">
+                AND (ls.creator_id = #{teacherId} OR ls.assistant_id = #{teacherId})
+            </if>
+        </where>
+    </select>
+
+    <select id="query" resultType="com.akehcloud.iecube.module.studentcourse.vo.HomeworkVO">
+        SELECT
+        lsjs.key AS resource_key,
+        lsjs.student_id AS student_id,
+        lsjs.score AS score,
+        ls.id AS lesson_schedule_id,
+        ls.creator_id AS teacher_id,
+        teacher.name AS teacher_name,
+        ls.assistant_id AS assistant_id,
+        c.name AS course_name,
+        c.id AS course_id,
+        l.id AS lesson_id,
+        l.name AS lesson_name,
+        l.cover_url AS cover_url,
+        student.name AS student_name,
+        student.school_id AS school_id,
+        student.num AS num,
+        student.email AS email,
+        student.faculty AS faculty,
+        student.grade AS grade,
+        student.grade_class AS grade_class
+        FROM lesson_schedule_join_student lsjs
+        LEFT JOIN lesson_schedule ls ON lsjs.lesson_schedule_id = ls.id
+        INNER JOIN lesson l ON ls.lesson_id = l.id
+        INNER JOIN course c ON l.course_id = c.id
+        LEFT JOIN user_info student ON lsjs.student_id = student.id
+        LEFT JOIN user_info teacher ON ls.creator_id = teacher.id
+        <where>
+            AND lsjs.key IS NOT NULL
+            <if test="studentId != null">
+                AND lsjs.student_id = #{studentId}
+            </if>
+            <if test="schoolId!=null">
+                AND ls.school_id = #{schoolId}
+            </if>
+            <if test="keywords!=null and keywords!=''">
+                AND (student.name LIKE CONCAT('%', #{keywords}, '%')
+                OR student.email LIKE CONCAT('%', #{keywords}, '%')
+                OR student.num LIKE CONCAT('%', #{keywords}, '%'))
+            </if>
+            <if test="num!=null and num!=''">
+                AND student.num = #{num}
+            </if>
+            <if test="faculty!=null and faculty!=''">
+                AND student.faculty = #{faculty}
+            </if>
+            <if test="grade!=null and grade!=''">
+                AND student.grade = #{grade}
+            </if>
+            <if test="gradeClass!=null and gradeClass!=''">
+                AND student.grade_class = #{gradeClass}
+            </if>
+            <if test="courseId!=null">
+                AND c.id = #{courseId}
+            </if>
+            <if test="lessonId!=null">
+                AND l.id = #{lessonId}
+            </if>
+            <if test="teacherId!=null">
+                AND (ls.creator_id = #{teacherId} OR ls.assistant_id = #{teacherId})
+            </if>
+        </where>
+        <if test="pageSize != null and offset != null">
+            LIMIT #{offset}, #{pageSize}
+        </if>
+    </select>
+
+
+    <select id="homeworkStatisticsCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM (SELECT COUNT(*)
+              FROM lesson_schedule_join_student lsjs
+                       LEFT JOIN lesson_schedule ls ON lsjs.lesson_schedule_id = ls.id
+                       LEFT JOIN lesson l ON ls.lesson_id = l.id
+                       LEFT JOIN course c ON l.course_id = c.id
+              WHERE (ls.creator_id = #{teacherId} OR ls.assistant_id = #{teacherId})
+                AND lsjs.key IS NOT NULL
+              GROUP BY c.id) a
+    </select>
+
+    <select id="homeworkStatisticsList"
+            resultType="com.akehcloud.iecube.module.studentcourse.vo.HomeworkStatisticsVO">
+        SELECT c.id AS course_id, c.name AS course_name, COUNT(a.course_id) AS homework_count
+        FROM course c
+                 INNER JOIN (
+            SELECT l.course_id AS course_id
+            FROM lesson_schedule_join_student lsjs
+                     LEFT JOIN lesson_schedule ls ON lsjs.lesson_schedule_id = ls.id
+                     LEFT JOIN lesson l ON ls.lesson_id = l.id
+                     LEFT JOIN course c ON l.course_id = c.id
+            WHERE (ls.creator_id = #{teacherId} OR ls.assistant_id = #{teacherId})
+              AND lsjs.key IS NOT NULL
+        ) a ON c.id = a.course_id
+        GROUP BY c.id
+    </select>
+
+
+    <select id="getStudentHomeworkCount" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM
+        (SELECT DISTINCT u.id
+        FROM user_info u
+        LEFT JOIN lesson_schedule_join_student lsjs ON u.id = lsjs.student_id
+        LEFT JOIN lesson_schedule ls ON lsjs.lesson_schedule_id = ls.id
+        LEFT JOIN lesson l ON ls.lesson_id = l.id
+        LEFT JOIN course c ON l.course_id = c.id
+        <where>
+            AND (ls.creator_id = #{teacherId} OR ls.assistant_id = #{teacherId})
+            <if test="studentName!=null and studentName!=''">
+                AND u.name LIKE CONCAT('%', #{studentName}, '%')
+            </if>
+            <if test="num!=null and num!=''">
+                AND u.num LIKE CONCAT('%', #{num}, '%')
+            </if>
+            <if test="faculty!=null and faculty!=''">
+                AND u.faculty = #{faculty}
+            </if>
+            <if test="grade!=null and grade!=''">
+                AND u.grade = #{grade}
+            </if>
+            <if test="gradeClass!=null and gradeClass!=''">
+                AND u.grade_class = #{gradeClass}
+            </if>
+            <if test="courseId!=null">
+                AND c.id = #{courseId}
+            </if>
+        </where>
+        ) a
+    </select>
+
+    <select id="getStudentList" resultType="com.akehcloud.iecube.module.user.dto.UserDTO">
+        SELECT DISTINCT u.*
+        FROM user_info u
+        LEFT JOIN lesson_schedule_join_student lsjs ON u.id = lsjs.student_id
+        LEFT JOIN lesson_schedule ls ON lsjs.lesson_schedule_id = ls.id
+        LEFT JOIN lesson l ON ls.lesson_id = l.id
+        LEFT JOIN course c ON l.course_id = c.id
+        <where>
+            AND (ls.creator_id = #{teacherId} OR ls.assistant_id = #{teacherId})
+            <if test="studentName!=null and studentName!=''">
+                AND u.name LIKE CONCAT('%', #{studentName}, '%')
+            </if>
+            <if test="num!=null and num!=''">
+                AND u.num LIKE CONCAT('%', #{num}, '%')
+            </if>
+            <if test="faculty!=null and faculty!=''">
+                AND u.faculty = #{faculty}
+            </if>
+            <if test="grade!=null and grade!=''">
+                AND u.grade = #{grade}
+            </if>
+            <if test="gradeClass!=null and gradeClass!=''">
+                AND u.grade_class = #{gradeClass}
+            </if>
+            <if test="courseId!=null">
+                AND c.id = #{courseId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getScoreDetails"
+            resultType="com.akehcloud.iecube.module.studentcourse.dto.LessonScheduleStatisticsDTO">
+        SELECT l.id       AS lesson_id,
+               l.name     AS lesson_name,
+               lsjs.score AS score,
+               lsjs.key   AS resource_key,
+               ls.weight  AS weight,
+               ls.id      AS lesson_schedule_id
+        FROM lesson l
+                 LEFT JOIN lesson_schedule ls ON l.id = ls.lesson_id
+                 LEFT JOIN lesson_schedule_join_student lsjs ON lsjs.lesson_schedule_id = ls.id
+        WHERE l.course_id = #{courseId}
+          AND lsjs.student_id = #{studentId}
+    </select>
+
+</mapper>

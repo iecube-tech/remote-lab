@@ -1,0 +1,117 @@
+server:
+  port: 9191
+spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+  datasource:
+    url: jdbc:mysql://172.26.177.212:3306/iecube?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+    username: root
+#    password: iecube2022
+    password: 11223366zxl
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      max-lifetime: 10000
+      minimum-idle: 3
+  mail:
+    port: 465
+    host: smtp.partner.outlook.cn
+    username: iecubeonline@iecube.com.cn
+    password: Iecube2021
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            enable: true
+          socketFactory:
+            port: 465
+            class: javax.net.ssl.SSLSocketFactory
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: update
+    show-sql: on
+  redis:
+    host: 172.26.177.212
+    port: 6379
+    #password:
+  web:
+    resources:
+      static-locations: file:${resource-location}
+  mvc:
+    static-path-pattern: /local-resource/**
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    default-enum-type-handler: org.apache.ibatis.type.EnumTypeHandler
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+resource-location: C:\Users\17823\work\Remote Lab\IECube项目交付\src\service-iecube\src\main\resources
+
+init-data:
+  school-roles:
+    - code: 'SCHOOL_ADMIN'
+      name: '学校管理员'
+      app-code: 'IECUBE_MS'
+      permission-code-list:
+        - 'USER_MANAGE'
+        - 'IN_SCHOOL_USER_MANAGE'
+        - 'LEAVE_SCHOOL_USER_MANAGE'
+        - 'SCHOOL_COURSE_MANAGE'
+    - code: 'TEACHER'
+      name: '老师'
+      app-code: 'IECUBE_MS'
+      permission-code-list:
+        - 'BUSINESS_MANAGE'
+        - 'TEACHER_COURSE_MANAGE'
+        - 'LESSON_SCHEDULE_MANAGE'
+        - 'LESSON_SCHEDULE_EDIT'
+        - 'LESSON_SCHEDULE_ALL'
+        - 'HOMEWORK_MANAGE'
+        - 'HOMEWORK_GRADE'
+        - 'HOMEWORK_SCORE_MODIFY'
+        - 'COMMENT_MANAGE'
+        - 'DEVICE_MANAGE'
+    - code: 'ASSISTANT'
+      name: '助教'
+      app-code: 'IECUBE_MS'
+      permission-code-list:
+        - 'BUSINESS_MANAGE'
+        - 'HOMEWORK_MANAGE'
+        - 'HOMEWORK_GRADE'
+        - 'COMMENT_MANAGE'
+  organization-roles:
+    - code: 'ORG_ADMIN'
+      name: '机构管理员'
+      app-code: 'IECUBE_PM'
+      permission-code-list:
+        - 'CONTENT_PLATFORM'
+        - 'COURSE_EDITOR_MANAGE'
+        - 'COURSE_MANAGE'
+    - code: 'COURSE_EDITOR'
+      name: '课程编辑者'
+      app-code: 'IECUBE_PM'
+      permission-code-list:
+        - 'CONTENT_PLATFORM'
+        - 'COURSE_MANAGE'
+email:
+  template:
+    user-activate: classpath:template/user_activate_email.ftl
+    user-reset-password: classpath:template/user_reset_password_email.ftl
+
+business:
+  user:
+    template:
+      path: classpath:template/user_template.xlsx
+  signal-server:
+    url: wss://signalserver.iecube.com.cn:1333
+    api-key: 'Enter your API key'

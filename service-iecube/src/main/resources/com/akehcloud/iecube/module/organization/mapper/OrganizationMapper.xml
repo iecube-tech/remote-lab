@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.akehcloud.iecube.module.organization.mapper.OrganizationMapper">
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO organization
+        (
+        id, `name`, icon_url, cover_url, status, creator_id, create_time, last_operate_time, last_operator_id
+        )
+        VALUES
+        (
+        NULL, #{name}, #{iconUrl}, #{coverUrl}, #{status}, #{creatorId}, NOW(), NOW(), #{creatorId}
+        )
+        <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <update id="modify">
+        update organization
+        <set>
+            <if test="name!= null">
+                name = #{name},
+            </if>
+            <if test="iconUrl != null">
+                icon_url = #{iconUrl},
+            </if>
+            <if test="coverUrl != null">
+                cover_url = #{coverUrl},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            last_operate_time = NOW(),
+            last_operator_id = #{lastOperatorId},
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <insert id="bindOrganizationJoinUser">
+        INSERT INTO user_join_org
+        (user_id, org_id)
+        VALUES (#{userId}, #{orgId})
+    </insert>
+
+
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM organization o
+    </select>
+
+    <select id="query" resultType="com.akehcloud.iecube.module.organization.dto.OrganizationDTO">
+        SELECT
+        u.name AS admin_name,
+        u.email AS admin_email,
+        o.*
+        FROM organization o
+        INNER JOIN user_info u ON o.admin_id = u.id
+        <if test="offset!=null and pageSize!=null">
+            limit #{offset},#{pageSize}
+        </if>
+    </select>
+</mapper>

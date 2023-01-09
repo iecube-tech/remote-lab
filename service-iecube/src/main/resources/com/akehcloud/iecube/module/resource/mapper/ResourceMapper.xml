@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.akehcloud.iecube.module.resource.mapper.ResourceMapper">
+
+    <insert id="batchSave">
+        INSERT INTO resource
+        (`key`, filename, origin_filename)
+        VALUES
+        <foreach collection="list" separator="," item="item">
+            (
+            #{item.key}, #{item.filename},#{item.originFilename}
+            )
+        </foreach>
+    </insert>
+
+
+    <select id="getAttachmentList" resultType="com.akehcloud.iecube.module.resource.dto.ResourceDTO">
+        SELECT * FROM resource WHERE `key` IN (<foreach collection="keys" separator="," item="item">#{item}</foreach>)
+    </select>
+
+    <select id="getByKey" resultType="com.akehcloud.iecube.module.resource.dto.ResourceDTO">
+        SELECT * FROM resource WHERE `key` = #{key}
+    </select>
+
+    <delete id="deleteAttachmentList">
+        DELETE FROM resource WHERE `key` IN (<foreach collection="keys" separator="," item="item">#{item}</foreach>)
+    </delete>
+
+
+</mapper>

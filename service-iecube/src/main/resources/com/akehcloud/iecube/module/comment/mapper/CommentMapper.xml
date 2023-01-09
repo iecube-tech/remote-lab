@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.akehcloud.iecube.module.comment.mapper.CommentMapper">
+
+    <resultMap id="commentDTO" type="com.akehcloud.iecube.module.comment.dto.CommentDTO">
+        <result column="id" property="id"/>
+        <result column="lesson_id" property="lessonId"/>
+        <result column="school_id" property="schoolId"/>
+        <result column="content" property="content"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="top" property="top"/>
+        <result column="lesson_name" property="lessonName"/>
+        <result column="creator_name" property="creatorName"/>
+        <result column="course_name" property="courseName"/>
+        <result column="email" property="email"/>
+        <association property="reply" resultMap="ReplyDTO"/>
+    </resultMap>
+    <resultMap id="ReplyDTO" type="com.akehcloud.iecube.module.comment.dto.ReplyDTO">
+        <id column="reply_id" property="id"/>
+        <result column="reply_comment_id" property="commentId"/>
+        <result column="reply_content" property="content"/>
+        <result column="reply_create_time" property="createTime"/>
+        <result column="reply_creator_id" property="creatorId"/>
+        <result column="reply_creator_name" property="creatorName"/>
+    </resultMap>
+
+    <insert id="save">
+        INSERT INTO comment
+            (id, lesson_id, school_id, content, creator_id, create_time, top)
+        VALUES (NULL, #{lessonId}, #{schoolId}, #{content}, #{creatorId}, NOW(), #{top})
+    </insert>
+    <update id="update">
+        UPDATE comment
+        SET top = #{top}
+        WHERE id = #{id};
+    </update>
+    <delete id="deleteById">
+        DELETE
+        FROM comment
+        WHERE id = #{id};
+    </delete>
+
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM (
+        SELECT DISTINCT(c.id)
+        FROM `comment` c
+        LEFT JOIN user_info u ON u.id = c.creator_id
+        LEFT JOIN lesson l ON l.id = c.lesson_id
+        LEFT JOIN course cc ON cc.id = l.course_id
+        LEFT JOIN lesson_schedule ls ON l.id = ls.lesson_id
+        <where>
+            AND c.school_id = #{schoolId}
+            <if test="num != null and num != ''">
+                AND u.num = #{num}
+            </if>
+            <if test="faculty != null and faculty != ''">
+                AND u.faculty = #{faculty}
+            </if>
+            <if test="grade != null and grade != ''">
+                AND u.grade = #{grade}
+            </if>
+            <if test="gradeClass != null and gradeClass != ''">
+                AND u.grade_class = #{gradeClass}
+            </if>
+            <if test="keywords!=null and keywords!=''">
+                AND (u.name LIKE CONCAT('%', #{keywords}, '%')
+                OR u.email LIKE CONCAT('%', #{keywords}, '%')
+                OR u.num LIKE CONCAT('%', #{keywords}, '%'))
+            </if>
+            <if test="courseId!=null">
+                AND l.course_id = #{courseId}
+            </if>
+            <if test="lessonId!=null">
+                AND c.lesson_id = #{lessonId}
+            </if>
+            <if test="teacherId!=null">
+                AND (ls.creator_id = #{teacherId} OR ls.assistant_id = #{teacherId})
+            </if>
+        </where>
+        ) t
+    </select>
+
+    <select id="query" resultMap="commentDTO">
+        SELECT
+        c.*,
+        u.name AS creator_name,
+        u.email AS email,
+        l.name AS lesson_name,
+        cc.name AS course_name,
+        r.id AS reply_id,
+        r.comment_id AS reply_comment_id,
+        r.content AS reply_content,
+        r.create_time AS reply_create_time,
+        r.creator_id AS reply_creator_id,
+        replyer.name AS reply_creator_name
+        FROM comment c
+        LEFT JOIN user_info u ON u.id = c.creator_id
+        LEFT JOIN lesson l ON l.id = c.lesson_id
+        LEFT JOIN course cc ON cc.id = l.course_id
+        LEFT JOIN reply r ON r.comment_id = c.id
+        LEFT JOIN user_info replyer ON replyer.id = r.creator_id
+        INNER JOIN (
+        SELECT DISTINCT(c.id) comment_id
+        FROM `comment` c
+        LEFT JOIN user_info u ON u.id = c.creator_id
+        LEFT JOIN lesson l ON l.id = c.lesson_id
+        LEFT JOIN course cc ON cc.id = l.course_id
+        LEFT JOIN lesson_schedule ls ON l.id = ls.lesson_id
+        <where>
+            AND c.school_id = #{schoolId}
+            <if test="num != null and num != ''">
+                AND u.num = #{num}
+            </if>
+            <if test="faculty != null and faculty != ''">
+                AND u.faculty = #{faculty}
+            </if>
+            <if test="grade != null and grade != ''">
+                AND u.grade = #{grade}
+            </if>
+            <if test="gradeClass != null and gradeClass != ''">
+                AND u.grade_class = #{gradeClass}
+            </if>
+            <if test="keywords!=null and keywords!=''">
+                AND (u.name LIKE CONCAT('%', #{keywords}, '%')
+                OR u.email LIKE CONCAT('%', #{keywords}, '%')
+                OR u.num LIKE CONCAT('%', #{keywords}, '%'))
+            </if>
+            <if test="courseId!=null">
+                AND l.course_id = #{courseId}
+            </if>
+            <if test="lessonId!=null">
+                AND c.lesson_id = #{lessonId}
+            </if>
+            <if test="teacherId!=null">
+                AND (ls.creator_id = #{teacherId} OR ls.assistant_id = #{teacherId})
+            </if>
+        </where>
+        ) t ON t.comment_id = c.id
+        ORDER BY c.top DESC, c.create_time DESC
+        <if test="pageSize != null and offset != null">
+            LIMIT #{offset}, #{pageSize}
+        </if>
+    </select>
+
+
+    <select id="detailById" resultMap="commentDTO">
+        SELECT c.*,
+               u.name        AS creator_name,
+               u.email       AS email,
+               l.name        AS lesson_name,
+               r.id          AS reply_id,
+               r.comment_id  AS reply_comment_id,
+               r.content     AS reply_content,
+               r.create_time AS reply_create_time,
+               r.creator_id  AS reply_creator_id,
+               ui.name       AS reply_creator_name
+        FROM comment c
+                 LEFT JOIN user_info u ON u.id = c.creator_id
+                 LEFT JOIN lesson l ON l.id = c.lesson_id
+                 LEFT JOIN reply r ON r.comment_id = c.id
+                 LEFT JOIN user_info ui ON ui.id = r.creator_id
+        WHERE c.id = #{id};
+    </select>
+</mapper>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.akehcloud.iecube.module.permission.mapper.PermissionMapper">
+
+    <select id="listCode" resultType="java.lang.String">
+        SELECT permission_code
+        FROM sys_role_join_permission
+        WHERE role_code = #{roleCode}
+          AND school_id = #{schoolId}
+    </select>
+
+    <select id="listCodeByUser" resultType="string">
+        SELECT DISTINCT(srjp.permission_code)
+        FROM user_join_role ujr,
+             sys_role_join_permission srjp
+        WHERE ujr.role_code = srjp.role_code
+          AND ujr.user_id = #{userId}
+          AND srjp.school_id = #{schoolId}
+    </select>
+
+</mapper>

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.akehcloud.iecube.module.studentcourse.mapper.StudentCourseMapper">
+
+    <insert id="favorite">
+        INSERT INTO favorite
+            (student_id, course_id)
+        VALUES (#{studentId}, #{courseId})
+    </insert>
+
+    <delete id="cancelFavorite">
+        DELETE
+        FROM favorite
+        WHERE student_id = #{studentId}
+          AND course_id = #{courseId}
+    </delete>
+
+    <select id="favoriteExist" resultType="java.lang.Boolean">
+        SELECT EXISTS(SELECT * FROM favorite WHERE student_id = #{studentId} AND course_id = #{courseId})
+    </select>
+
+    <select id="countSelfCourse" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM lesson_schedule_join_student lsjs
+        INNER JOIN lesson_schedule lc ON lsjs.lesson_schedule_id = lc.id
+        INNER JOIN lesson l ON lc.lesson_id = l.id
+        INNER JOIN course c ON c.id = l.course_id
+        <where>
+            AND lsjs.student_id = #{studentId}
+            AND lc.school_id = #{schoolId}
+        </where>
+    </select>
+
+    <select id="listSelfCourse" resultType="com.akehcloud.iecube.module.studentcourse.dto.StudentCourseDTO">
+        SELECT
+        c.id course_id,
+        c.name course_name,
+        c.cover_url cover_url,
+        c.summary summary
+        FROM (
+        SELECT c.id id
+        FROM lesson_schedule_join_student lsjs
+        INNER JOIN lesson_schedule lc ON lsjs.lesson_schedule_id = lc.id
+        INNER JOIN lesson l ON lc.lesson_id = l.id
+        INNER JOIN course c ON c.id = l.course_id
+        <where>
+            AND lsjs.student_id = #{studentId}
+            AND lc.school_id = #{schoolId}
+        </where>
+        GROUP BY c.id
+        ) t, course c WHERE t.id = c.id
+        <if test="offset!=null and pageSize!=null">
+            limit #{offset},#{pageSize}
+        </if>
+    </select>
+
+    <select id="getLessonScheduleId" resultType="java.lang.Long">
+        SELECT lc.id
+        FROM lesson_schedule_join_student lsjs
+                 INNER JOIN lesson_schedule lc ON lsjs.lesson_schedule_id = lc.id
+                 INNER JOIN lesson l ON lc.lesson_id = l.id
+        WHERE l.id = #{lessonId}
+          AND lsjs.student_id = #{studentId}
+        LIMIT 1
+    </select>
+
+    <select id="getLessonByCourseId"
+            resultMap="StudentLessonDTO">
+        SELECT
+        <include refid="StudentLessonDTO_Field"/>
+        FROM lesson_schedule_join_student lsjs
+        INNER JOIN lesson_schedule lc ON lsjs.lesson_schedule_id = lc.id
+        INNER JOIN lesson l ON lc.lesson_id = l.id
+        INNER JOIN user_info u.id = lc.creator_id
+        WHERE lc.school_id = #{schoolId} AND l.course_id = #{courseId}
+    </select>
+
+    <select id="favoriteCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM favorite f
+                 INNER JOIN course c ON c.id = f.course_id
+                 INNER JOIN user_info u ON f.student_id = u.id
+        WHERE f.student_id = #{studentId}
+    </select>
+
+    <select id="favoriteList" resultType="com.akehcloud.iecube.module.studentcourse.dto.StudentCourseDTO">
+        SELECT c.id course_id, c.name course_name, c.cover_url cover_url, c.summary summary
+        FROM favorite f
+                 INNER JOIN course c ON c.id = f.course_id
+                 INNER JOIN user_info u ON f.student_id = u.id
+        WHERE f.student_id = #{studentId}
+    </select>
+
+    <select id="getStudentCourseDetail"
+            resultType="com.akehcloud.iecube.module.studentcourse.dto.StudentLessonScheduleDTO">
+        SELECT *
+        FROM lesson_schedule_join_student
+        WHERE student_id = #{studentId}
+          AND lesson_schedule_id = #{lessonScheduleId}
+    </select>
+
+    <select id="listLessonScheduleForStudent"
+            resultType="com.akehcloud.iecube.module.lessonschedule.vo.LessonScheduleVO">
+        SELECT c.id            AS course_id,
+               c.name          AS course_name,
+               l.id            AS lesson_id,
+               l.name          AS lesson_name,
+               ls.id           AS lesson_schedule_id,
+               ls.start_date   AS start_date,
+               ls.end_date     AS end_date,
+               ls.start_time   AS start_time,
+               ls.end_time     AS end_time,
+               ls.creator_id   AS creator_id,
+               ls.creator_name AS creator_name
+        FROM course c
+                 INNER JOIN lesson l ON c.id = l.course_id
+                 LEFT JOIN (
+            SELECT ls.*, u.name creator_name
+            FROM lesson_schedule ls
+                     LEFT JOIN lesson_schedule_join_student lsjs ON ls.id = lsjs.lesson_schedule_id
+                     LEFT JOIN user_info u ON ls.creator_id = u.id
+            WHERE lsjs.student_id = ${studentId}
+        ) ls ON l.id = ls.lesson_id
+        WHERE course_id = ${courseId}
+    </select>
+
+    <resultMap id="LessonDTO" type="com.akehcloud.iecube.module.lesson.dto.LessonDTO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="cover_url" property="coverUrl"/>
+        <result column="summary" property="summary"/>
+        <result column="content" property="content"/>
+        <result column="content_url" property="contentUrl"/>
+        <result column="content_type" property="contentType"/>
+        <result column="experiment_operation_page_url" property="experimentOperationPageUrl"/>
+        <collection property="lessonScheduleList" resultMap="LessonScheduleDTO"/>
+    </resultMap>
+
+    <resultMap id="LessonScheduleDTO" type="com.akehcloud.iecube.module.lessonschedule.dto.LessonScheduleDTO">
+        <id column="lesson_schedule_id" property="id"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="teacher_name" property="teacherName"/>
+    </resultMap>
+
+    <sql id="LessonDTO_Field">
+        l.id id,
+        l.name `name`,
+        l.cover_url cover_url,
+        l.summary summary,
+        l.content content,
+        l.content_url content_url,
+        l.content_type content_type,
+        l.experiment_operation_page_url experiment_operation_page_url,
+        ls.id lesson_schedule_id,
+        ls.start_date start_date,
+        ls.end_date end_date,
+        ls.start_time start_time,
+        ls.end_time end_time,
+        ls.name teacher_name
+    </sql>
+
+    <resultMap id="StudentLessonDTO" type="com.akehcloud.iecube.module.studentcourse.dto.StudentLessonDTO">
+        <result column="lesson_id" property="lessonId"/>
+        <result column="lesson_name" property="lessonName"/>
+        <result column="cover_url" property="coverUrl"/>
+        <result column="summary" property="summary"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="teacher_name" property="teacherName"/>
+    </resultMap>
+
+    <sql id="StudentLessonDTO_Field">
+        l
+        .
+        id
+        lesson_id,
+        l.name lesson_name,
+        l.cover_url  cover_url,
+        l.summary summary,
+        lc.start_date start_date,
+        lc.end_date end_date,
+        u.name teacher_name
+    </sql>
+
+</mapper>

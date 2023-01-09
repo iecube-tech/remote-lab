@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.akehcloud.iecube.module.role.mapper.RoleMapper">
+
+
+    <insert id="batchSaveJoin">
+        INSERT INTO user_join_role (role_code, user_id) VALUES
+        <foreach collection="roleCodeList" separator="," item="item">
+            (#{item}, #{userId})
+        </foreach>
+    </insert>
+
+    <insert id="grant">
+        INSERT INTO sys_role_join_permission (role_code, permission_code, school_id) VALUES
+        <foreach collection="roleList" separator="," item="item">
+            <foreach collection="item.permissionCodeList" separator="," item="permissionCode">
+                ( #{item.code}, #{permissionCode}, #{schoolId} )
+            </foreach>
+        </foreach>
+    </insert>
+
+    <delete id="revoke">
+        DELETE
+        FROM sys_role_join_permission
+        WHERE school_id = #{schoolId}
+    </delete>
+
+</mapper>

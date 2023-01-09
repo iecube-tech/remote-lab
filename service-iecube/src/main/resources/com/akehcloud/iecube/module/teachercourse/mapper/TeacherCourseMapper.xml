@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.akehcloud.iecube.module.teachercourse.mapper.TeacherCourseMapper">
+
+
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM course c INNER JOIN course_grant_teacher ct ON c.id = ct.course_id
+        <where>
+            <if test="name!=null">
+                AND c.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            AND ct.teacher_id = #{teacherId};
+        </where>
+    </select>
+
+    <select id="query" resultType="com.akehcloud.iecube.module.teachercourse.dto.TeacherCourseDTO">
+        SELECT c.* FROM course c INNER JOIN course_grant_teacher ct ON c.id = ct.course_id
+        <where>
+            <if test="name!=null">
+                AND c.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            AND ct.teacher_id = #{teacherId};
+        </where>
+        <if test="offset!=null and pageSize!=null">
+            limit #{offset},#{pageSize}
+        </if>
+    </select>
+</mapper>

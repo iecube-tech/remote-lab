@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.akehcloud.iecube.module.school.mapper.SchoolMapper">
+
+
+    <insert id="save">
+        INSERT INTO school
+        (id, `name`, home_page_background_url, `sld`, logo_url, status, creator_id, create_time, last_operate_time,
+         last_operator_id)
+        values (NULL, #{name}, #{homePageBackgroundUrl}, #{sld}, #{logoUrl}, #{status}, #{creatorId}, NOW(), NOW(),
+                #{creatorId})
+    </insert>
+
+    <update id="modify">
+        update school
+        <set>
+            <if test="name!= null">
+                name = #{name},
+            </if>
+            <if test="homePageBackgroundUrl != null">
+                home_page_background_url = #{homePageBackgroundUrl},
+            </if>
+            <if test="sld != null">
+                sld = #{sld},
+            </if>
+            <if test="logoUrl != null">
+                logo_url = #{logoUrl},
+            </if>
+            <if test="adminLogoUrl != null">
+                admin_logo_url = #{adminLogoUrl},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            last_operate_time = NOW(),
+            last_operator_id = #{lastOperatorId},
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="list" resultType="com.akehcloud.iecube.module.school.dto.SchoolDTO">
+        SELECT s.id                       id,
+               s.name                     name,
+               s.home_page_background_url home_page_background_url,
+               s.sld                      sld,
+               s.logo_url                 logo_url,
+               s.status                   status,
+               s.admin_id                 admin_id,
+               u.name                     admin_name,
+               u.email                    admin_email
+        FROM school s,
+             user_info u
+        WHERE s.admin_id = u.id
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM school
+    </select>
+
+</mapper>
