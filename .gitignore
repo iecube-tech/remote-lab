@@ -8,7 +8,8 @@ view-iecube-pm/node_modules/
 view-iecube-pm/dist/
 view-iecube-student-v/node_modules/
 view-iecube-student-v/dist/
-
+demo/ezuikt-vue2-demo/node_modules/
+demo/ezuikt-vue2-demo/dist/
 # Log file
 *.log
 

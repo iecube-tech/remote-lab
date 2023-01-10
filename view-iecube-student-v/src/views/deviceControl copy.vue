@@ -99,6 +99,13 @@ export default {
     }
   },
   mounted() {
+    this.appointmentFrom.appointmentDate = new Date(this.$route.params.date)
+    this.appointmentFrom.startTime = this.$route.params.startTime
+    this.appointmentFrom.endTime = this.$route.params.endTime
+    this.appointmentFrom.deviceId = parseInt(this.$route.params.deviceId)
+    // this.appointmentFrom.deviceType = parseInt(this.$route.params.type)
+    this.appointmentFrom.lessonScheduleId = parseInt(this.$route.params.lessonScheduleId)
+    this.fetchData()
     player = new EZUIKit.EZUIKitPlayer({
       id: 'video-container', // 视频容器ID
       accessToken: 'at.23qmf3425erq3hiy1s9fz9100a5sf0e4-45gybzlgyn-1n6ytc8-3fc4lrdbe',
@@ -110,18 +117,7 @@ export default {
       width: 400,
       height: 250,
     });
-    console.log('nononono')
     window.player = player;
-
-    this.appointmentFrom.appointmentDate = new Date(this.$route.params.date)
-    this.appointmentFrom.startTime = this.$route.params.startTime
-    this.appointmentFrom.endTime = this.$route.params.endTime
-    this.appointmentFrom.deviceId = parseInt(this.$route.params.deviceId)
-    // this.appointmentFrom.deviceType = parseInt(this.$route.params.type)
-    this.appointmentFrom.lessonScheduleId = parseInt(this.$route.params.lessonScheduleId)
-    this.fetchData()
-
-
   },
   methods: {
     fetchData() {

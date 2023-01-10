@@ -20,6 +20,7 @@ service.interceptors.request.use(
     if (store.getters.token) {
       config.headers['x-access-token'] = getToken()
       config.headers['app-code'] = 'IECUBE_STUDENT'
+      // config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
     }
     return config
   }
