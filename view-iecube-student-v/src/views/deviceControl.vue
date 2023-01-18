@@ -23,8 +23,10 @@
           </div>
 
           <div class="tittle" v-if="deviceOperating.liveUrl">操作视频</div>
-          <video ref="liveVideo" class="video" controls muted />
-
+          <!-- 以下是萤石直播方式播放 -->
+          <!-- <video ref="liveVideo" class="video" controls muted autoplay /> -->
+          <!-- 以下采用监控播放的方式 -->
+          <div id="video-container" class="video" v-if="deviceOperating.liveUrl"></div>
         </div>
 
       </el-aside>
@@ -50,10 +52,11 @@
 </template>
 
 <script>
-import flvjs from 'flv.js'
-
+// import flvjs from 'flv.js'
+import EZUIKit from "ezuikit-js"
 import appointmentService from '@/service/appointment'
 import deviceService from '@/service/device'
+var player = null;
 
 export default {
   name: 'DeviceControl',
@@ -103,6 +106,7 @@ export default {
     // this.appointmentFrom.deviceType = parseInt(this.$route.params.type)
     this.appointmentFrom.lessonScheduleId = parseInt(this.$route.params.lessonScheduleId)
     this.fetchData()
+
   },
   methods: {
     fetchData() {
@@ -125,19 +129,36 @@ export default {
         }
         this.countDown()
         this.websocket()
-        if (flvjs.isSupported()) {
-          const videoElement = this.$refs.liveVideo
-          const flvPlayer = flvjs.createPlayer({
-            type: 'flv',
-            url: this.deviceOperating.liveUrl
-          })
-          flvPlayer.attachMediaElement(videoElement)
-          flvPlayer.load()
-          flvPlayer.play()
-          this.videoLoading = false
-        } else {
-          this.$message.warning('您的浏览器暂不支持此类直播链接')
-        }
+        // if (flvjs.isSupported()) {
+        //   const videoElement = this.$refs.liveVideo
+        //   const flvPlayer = flvjs.createPlayer({
+        //     type: 'flv',
+        //     url: this.deviceOperating.liveUrl
+        //   })
+        //   flvPlayer.attachMediaElement(videoElement)
+        //   flvPlayer.load()
+        //   flvPlayer.play()
+        //   this.videoLoading = false
+        // } else {
+        //   this.$message.warning('您的浏览器暂不支持此类直播链接')
+        // }
+        // 以上为萤石直播播放方式，以下切换萤石监控播放方式。监控播放方式延迟较小
+        console.log("111111111111111")
+        console.log(this.deviceOperating.liveUrl)
+
+        player = new EZUIKit.EZUIKitPlayer({
+          id: 'video-container', // 视频容器ID
+          accessToken: 'at.23qmf3425erq3hiy1s9fz9100a5sf0e4-45gybzlgyn-1n6ytc8-3fc4lrdbe',
+          url: 'ezopen://open.ys7.com/K81970910/1.hd.live',
+          // simple - 极简版; pcLive-pc直播；pcRec-pc回放；mobileLive-移动端直播；mobileRec-移动端回放;security - 安防版;voice-语音版;
+          // 使用自定义模板
+          template: '92d46ddc8f45417ab373131145645794',
+          // plugin: ['talk'], // 加载插件，talk-对讲
+          width: 450,
+          height: 300,
+        });
+        window.player = player;
+
       } catch (e) {
         console.error(e.message)
         this.$message.error(e.message)
@@ -196,6 +217,8 @@ export default {
         }
 
         if (this.residueMin === 0 && this.residueSec === 0) {
+          player.stop()
+          player.destroy()
           this.deviceOperating.liveUrl = ''
           this.iframeUrl = ''
           this.experimentIframeUrl = ''

@@ -1,7 +1,7 @@
 'use strict'
 const path = require('path')
 
-function resolve (dir) {
+function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
@@ -17,19 +17,28 @@ module.exports = {
       errors: true
     },
     proxy: {
+      // changOrigin: true,
       '/dev-api': {
-        target: 'http://47.94.161.154:9091',
+        target: 'http://10.11.19.104:9093',
         pathRewrite: {
           '^/dev-api': ''
         }
       },
       '/local-resource': {
-        target: 'http://47.94.161.154:9091'
-      }
-    }
+        target: 'http://10.11.19.104:9093'
+      },
+      // 'https://open.ys7.com': {
+      //   'target': 'https://open.ys7.com',
+      //   'secure': true, // false为http访问，true为https访问
+      //   'changeOrigin': true, // 跨域访问设置，true代表跨域
+      //   'pathRewrite': { // 路径改写规则
+      //     '^https://open.ys7.com': ''
+      //   }
+      // }
+    },
     // before: require('./mock/mock-server.js')
   },
-  chainWebpack (config) {
+  chainWebpack(config) {
     config.module
       .rule('icons')
       .test(/\.js$/)
