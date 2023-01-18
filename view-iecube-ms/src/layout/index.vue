@@ -8,6 +8,9 @@
       </div>
       <app-main />
     </div>
+    <div class="icp" title="https://beian.miit.gov.cn/" @click="open">
+      ¾©ICP±¸20018557ºÅ-2
+    </div>
   </div>
 </template>
 
@@ -45,12 +48,25 @@ export default {
   methods: {
     handleClickOutside() {
       this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })
+    },
+    open() {
+      window.open('https://beian.miit.gov.cn/')
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+  .icp {
+    width: 100%;
+    text-align: center;
+    bottom: 20px;
+    position: relative;
+    font-weight: 500;
+    cursor: pointer;
+    color: rgba(0, 0, 0, 0.65);
+  }
+
   @import "~@/styles/mixin.scss";
   @import "~@/styles/variables.scss";
 

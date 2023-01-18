@@ -234,7 +234,6 @@ export default {
   }
 }
 </script>
-
 <style lang="scss" scoped>
 .view {
   margin-top: 60px;
@@ -327,12 +326,12 @@ export default {
     overflow: hidden;
     background-color: #fff;
 
-    /deep/ .el-tabs__nav {
+    ::v-deep .el-tabs__nav {
       margin-left: 20px;
       margin-top: 8px;
     }
 
-    /deep/ .el-tabs__item {
+    ::v-deep .el-tabs__item {
       font-size: 16px;
       margin-bottom: 6px;
     }

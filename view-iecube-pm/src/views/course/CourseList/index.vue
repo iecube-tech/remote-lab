@@ -10,7 +10,7 @@
               </el-col>
               <el-col :span="15">
                 <div class="course-name">{{ item.name }}</div>
-                <div class="course-summary">{{ item.summary }}</div>
+                <div class="course-summary" :title="item.summary">{{ item.summary }}</div>
                 <div class="course-provider">Provider：{{ item.organizationName }}</div>
               </el-col>
             </el-row>
@@ -85,6 +85,8 @@ export default {
   line-height: 24px;
   font-weight: 400;
   margin-bottom: 16px;
+  overflow: hidden;
+  height: 48px;
 }
 
 .course-provider {

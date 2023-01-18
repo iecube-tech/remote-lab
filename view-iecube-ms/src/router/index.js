@@ -8,6 +8,7 @@ import Layout from '@/layout'
 export const constantRoutes = [
   {
     path: '/login',
+    name: 'Login',
     component: () => import('@/views/login/index'),
     hidden: true
   },
@@ -147,6 +148,7 @@ const asyncRouter = [
         hidden: true,
         showChildren: true,
         component: () => import('@/views/lesson-schedule'),
+        redirect: '/business/lesson-schedule/list',
         meta: { title: '排课管理', icon: 'table', permission: 'LESSON_SCHEDULE_MANAGE' },
         children: [
           {

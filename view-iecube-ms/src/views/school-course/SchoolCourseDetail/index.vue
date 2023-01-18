@@ -40,7 +40,7 @@
     <router-view />
 
     <div v-if="showGrantDialog">
-      <el-dialog title="授权" :visible.sync="showGrantDialog" width="60%">
+      <el-dialog title="授权" :visible.sync="showGrantDialog" width="60%" @closed="showGrantDialog = false">
         <user-select-table
           type="TEACHER"
           :selected-in="grantUserList"

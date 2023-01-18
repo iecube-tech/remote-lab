@@ -21,7 +21,7 @@
         />
       </el-form-item>
 
-      <el-form-item prop="password">
+      <el-form-item prop="password" style="margin-bottom: 0">
         <span class="svg-container">
           <svg-icon icon-class="password" />
         </span>
@@ -40,14 +40,33 @@
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
       </el-form-item>
-
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
+      <div>
+        <el-button type="text" style="padding: 12px" @click.native.prevent="toResetPassword">忘记密码？</el-button>
+      </div>
+      <el-button :loading="loading" type="primary" style="width:100%; margin-bottom:30px; margin-top: 20px" @click.native.prevent="handleLogin">登录</el-button>
 
     </el-form>
+
+    <div v-if="showResetPassword">
+      <el-dialog title="重置密码" :visible.sync="showResetPassword" append-to-body>
+        <el-form ref="resetPasswordForm" :rules="resetPasswordFormRules" :model="resetPasswordForm" class="login-form">
+          <el-form-item prop="email">
+            <el-input v-model="resetPasswordForm.email" placeholder="请输入邮箱" class="input email" prefix-icon="el-icon-user" />
+          </el-form-item>
+          <el-form-item>
+            <el-button :loading="resetPasswordLoading" type="primary" class="login-button" @click.native.prevent="resetPassword">重置密码</el-button>
+          </el-form-item>
+        </el-form>
+        <div style="padding: 12px; color: #66b1ff;">重置密码后，会将新的密码发送至账号邮箱，请注意查收。</div>
+      </el-dialog>
+    </div>
+
   </div>
 </template>
 
 <script>
+
+import userService from '@/service/user'
 
 export default {
   name: 'Login',
@@ -70,7 +89,18 @@ export default {
       },
       loading: false,
       passwordType: 'password',
-      redirect: undefined
+      redirect: undefined,
+      showResetPassword: false,
+      resetPasswordLoading: false,
+      resetPasswordForm: {
+        email: undefined
+      },
+      resetPasswordFormRules: {
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+        ]
+      }
     }
   },
   watch: {
@@ -105,6 +135,29 @@ export default {
             this.$message.error(e.message)
           } finally {
             this.loading = false
+          }
+        }
+      })
+    },
+    toResetPassword() {
+      this.showResetPassword = true
+    },
+    resetPassword() {
+      this.$refs.resetPasswordForm.validate(async(valid) => {
+        if (valid) {
+          this.resetPasswordLoading = true
+          try {
+            const { code, message } = await userService.resetPassword(this.resetPasswordForm.email)
+            if (code === 0) {
+              this.$refs.resetPasswordForm.resetFields()
+              this.$message.success('密码重置成功，已发送到账号邮箱，请注意查收')
+            } else {
+              this.$message.error(message)
+            }
+          } catch (e) {
+            this.$message.error((e && e.message) || '系统异常')
+          } finally {
+            this.resetPasswordLoading = false
           }
         }
       })

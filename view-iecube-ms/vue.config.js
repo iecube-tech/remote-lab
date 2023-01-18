@@ -38,13 +38,13 @@ module.exports = {
     },
     proxy: {
       '/dev-api': {
-        target: 'http://[::1]:9191',
+        target: 'http://10.11.19.104:9093',
         pathRewrite: {
           '^/dev-api': ''
         }
       },
       '/local-resource': {
-        target: 'http://[::1]:9191'
+        target: 'http://10.11.19.104:9093'
       }
     }/*,
     before: require('./mock/mock-server.js')*/

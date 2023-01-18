@@ -3,7 +3,7 @@
     <div>
       <el-form ref="form" :model="form" label-width="100px" label-position="top">
         <el-row :gutter="40">
-          <el-col :span="8">
+          <el-col :span="10">
             <el-form-item label="名称">
               <el-input v-model="form.name" />
             </el-form-item>
@@ -11,7 +11,7 @@
         </el-row>
 
         <el-row :gutter="40">
-          <el-col :span="8">
+          <el-col :span="10">
             <el-form-item label="课节简介">
               <el-input
                 v-model="form.summary"
@@ -19,6 +19,8 @@
                 style="height: 178px"
                 type="textarea"
                 :rows="8"
+                :maxlength="255"
+                show-word-limit
               />
             </el-form-item>
           </el-col>
