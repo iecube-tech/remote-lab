@@ -38,6 +38,9 @@ const userService = {
     const data = new FormData()
     data.append('file', file)
     return request.post('/user/batch', data)
+  },
+  resetPassword: (email) => {
+    return request.put('/user/password/reset', { email: email })
   }
 }
 

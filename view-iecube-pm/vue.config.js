@@ -38,13 +38,13 @@ module.exports = {
     },
     proxy: {
       '/dev-api': {
-        target: 'http://127.0.0.1:9091',
+        target: 'http://10.11.19.104:9093',
         pathRewrite: {
           '^/dev-api': ''
         }
       },
       '/local-resource': {
-        target: 'http://127.0.0.1:9091'
+        target: 'http://10.11.19.104:9093'
       }
     }
     // before: require('./mock/mock-server.js')
@@ -108,7 +108,7 @@ module.exports = {
             .plugin('ScriptExtHtmlWebpackPlugin')
             .after('html')
             .use('script-ext-html-webpack-plugin', [{
-            // `runtime` must same as runtimeChunk name. default is `runtime`
+              // `runtime` must same as runtimeChunk name. default is `runtime`
               inline: /runtime\..*\.js$/
             }])
             .end()

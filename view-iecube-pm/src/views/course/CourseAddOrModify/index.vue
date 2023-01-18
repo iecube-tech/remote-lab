@@ -16,7 +16,7 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="课程简介" style="margin-bottom: 40px">
-        <el-input v-model="form.summary" type="textarea" :rows="5" />
+        <el-input v-model="form.summary" type="textarea" :rows="5" :maxlength="255" show-word-limit />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="confirm">确定</el-button>

@@ -3,8 +3,8 @@
     <div class="course-container">
       <span v-for="course in courseArray" :key="'course' + course.courseId" class="card" @click="jump(course.courseId)">
         <img class="card-img" :src="'local-resource/' + course.coverUrl" alt="course">
-        <div class="card-tittle"> {{ course.courseName }}</div>
-        <div class="card-introduction"> {{ course.summary }}</div>
+        <div class="card-tittle" :title="course.courseName"> {{ course.courseName }}</div>
+        <div class="card-introduction" :title="course.summary"> {{ course.summary }}</div>
       </span>
     </div>
   </div>
@@ -91,6 +91,10 @@ $main: #2DA2A6;
     font-weight: 600;
     color: $main;
     line-height: 30px;
+    height: 30px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     margin: 20px ;
   }
 
@@ -98,7 +102,9 @@ $main: #2DA2A6;
     font-size: 14px;
     color: rgba(0, 0, 0, 0.65);
     line-height: 24px;
+    height: 72px;
     margin: 0 20px;
+    overflow: hidden;
   }
 }
 </style>

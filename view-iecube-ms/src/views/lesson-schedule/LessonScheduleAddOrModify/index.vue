@@ -52,7 +52,7 @@
                 />
               </el-form-item>
               <el-form-item label="单次时长" prop="appointmentDuration">
-                <el-input-number v-model="form.appointmentDuration" size="small" />
+                <el-input-number v-model="form.appointmentDuration" size="small" :min="1" />
               </el-form-item>
               <el-form-item label="可预约次数" prop="appointmentCount">
                 <el-input-number v-model="form.appointmentCount" size="small" />
@@ -147,7 +147,7 @@
           </el-col>
         </el-row>
 
-        <el-button type="primary" style="width: 200px" @click="save">保存</el-button>
+        <el-button type="primary" style="width: 200px" :loading="loading" @click="save">保存</el-button>
 
       </el-form>
     </div>
@@ -165,7 +165,7 @@
     </div>
 
     <div v-if="showSelectAssistantDialog">
-      <el-dialog title="选择助教" :visible.sync="showSelectAssistantDialog" width="60%">
+      <el-dialog title="选择助教" :visible.sync="showSelectAssistantDialog" width="60%" @closed="showSelectAssistantDialog = false">
         <user-select-table
           :type="['STUDENT', 'ASSISTANT']"
           :selected-in="assistantId ? [{ id: assistantId }] : []"
@@ -211,7 +211,7 @@ export default {
         lessonId: undefined,
         dateRange: undefined,
         timeRange: undefined,
-        appointmentDuration: 0,
+        appointmentDuration: undefined,
         appointmentCount: 0,
         homeworkRequire: undefined,
         homeworkAttachmentList: [],
@@ -233,7 +233,7 @@ export default {
           { required: true, message: '请选择每日的时间范围' }
         ],
         appointmentDuration: [
-          { required: true, message: '请输入最大单次预约时长' }
+          { required: true, message: '请输入最大单次预约时长', trigger: 'blur' }
         ],
         appointmentCount: [
           { required: true, message: '请输入最大的预约次数' }
@@ -245,6 +245,7 @@ export default {
           { required: true, message: '请输入加权系数' }
         ]
       },
+      loading: false,
       showSelectStudentDialog: false,
       showSelectAssistantDialog: false,
       showAddDeviceDialog: false
@@ -298,6 +299,7 @@ export default {
     save() {
       this.$refs['form'].validate(async valid => {
         if (valid) {
+          this.loading = true
           const params = Object.assign({}, this.form)
           params.startDate = this.form.dateRange[0]
           params.endDate = this.form.dateRange[1]
@@ -330,6 +332,7 @@ export default {
           } else {
             this.$message.error(message)
           }
+          this.loading = false
         }
       })
     },

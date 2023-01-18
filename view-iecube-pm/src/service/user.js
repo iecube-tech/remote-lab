@@ -27,6 +27,9 @@ const userService = {
   },
   modifyPwd: (data) => {
     return request.put('/user/password', data)
+  },
+  resetPassword: (email) => {
+    return request.put('/user/password/reset', { email: email })
   }
 }
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="lesson-container">
-      <span v-for="lesson in appointmentArray" :key="'lesson' + lesson.lessonId" class="card" @click="jump(lesson)">
+      <span v-for="lesson in appointmentArray" :key="'lesson' + lesson.lessonId + lesson.appointmentDate + lesson.startTime + lesson.endTime + lesson.deviceId" class="card" @click="jump(lesson)">
         <img class="card-img" :src="'local-resource/' + lesson.lessonCoverUrl" alt="lesson">
         <div class="word-container">
           <div class="card-tittle"> {{ lesson.lessonName }}</div>
@@ -46,10 +46,7 @@ export default {
     },
     async list () {
       const { model } = await appointmentService.list({})
-      console.log(model)
-      let appointmentArrays = model.content
-      this.appointmentArray = [...new Set(appointmentArrays)]
-      console.log(this.appointmentArray)
+      this.appointmentArray = model.content
     }
   }
 }

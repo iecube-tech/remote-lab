@@ -199,6 +199,8 @@ export default {
 
   .course-menu {
     height: calc(100vh - 60px);
+    overflow-y: scroll;
+    overflow-x: hidden;
     width: 320px;
     background-color: #fff;
     position: fixed;
@@ -466,7 +468,7 @@ export default {
       margin-right: 20px;
       margin-top: 12px;
 
-      /deep/ .el-textarea__inner {
+      ::v-deep .el-textarea__inner {
         width: calc(100% - 40px);
         height: 80px;
       }

@@ -124,6 +124,8 @@ export default {
   line-height: 24px;
   font-weight: 400;
   margin-bottom: 16px;
+  overflow: hidden;
+  height: 72px;
 }
 
 .course-provider {

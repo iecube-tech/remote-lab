@@ -42,9 +42,11 @@ service.interceptors.response.use(
   },
   error => {
     if (error.response.status === 401) {
-      store.dispatch('user/resetToken').then(() => {
-        location.reload()
-      })
+      if (error.response.data.code !== 10003) {
+        store.dispatch('user/resetToken').then(() => {
+          location.reload()
+        })
+      }
     }
     return Promise.reject(error.response.data)
   }
