@@ -3,6 +3,8 @@ package com.akehcloud.iecube.util;
 import com.akehcloud.exception.runtime.AuthException;
 import com.akehcloud.exception.runtime.SystemException;
 import com.akehcloud.iecube.module.auth.dto.CurrentUserDTO;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +25,8 @@ public class AuthUtils {
     public static final String APP_CODE_SECRET = "app-code";
 
     private static final String SECRET = "aksjdflajs";
-    private static final String USER_REDIS_KEY_PIX = "username";
+    private static final String USER_REDIS_KEY_PIX = "USER_";
+    private static final String USER_TOKEN_REDIS_KEY_PIX = "USER_TOKEN_";
 
     private static final ThreadLocal<CurrentUserDTO> LOCAL_USER = new ThreadLocal<>();
     private static final ThreadLocal<String> LOCAL_APP = new ThreadLocal<>();
@@ -32,28 +35,36 @@ public class AuthUtils {
     private AuthUtils() {
     }
 
-    public static void rm(StringRedisTemplate redisTemplate) {
-        redisTemplate.delete(getUserRedisKey(getCurrentUserEmail()));
+    public static String createToken(Long userId) {
+        return JwtUtils.sign(userId, SECRET);
     }
 
-    public static void cache(CurrentUserDTO user, StringRedisTemplate redisTemplate) {
+    public static void rm(StringRedisTemplate redisTemplate) {
+        redisTemplate.delete(getUserRedisKey(getCurrentUserId()));
+        redisTemplate.delete(getUserTokenRedisKey(getCurrentUserId()));
+    }
+
+    public static void cache(CurrentUserDTO user, String token, StringRedisTemplate redisTemplate) {
         try {
             redisTemplate.opsForValue().set(
-                    getUserRedisKey(user.getEmail()),
+                    getUserRedisKey(user.getId()),
                     new ObjectMapper().writeValueAsString(user), 30, TimeUnit.MINUTES);
         } catch (JsonProcessingException e) {
             log.error("转JSON失败", e);
             throw new SystemException();
         }
+        redisTemplate.opsForValue().set(
+                getUserTokenRedisKey(user.getId()),
+                token, 30, TimeUnit.MINUTES);
     }
 
-    public static void setCurrentUser(String email, StringRedisTemplate redisTemplate) {
-        CurrentUserDTO user = getAuthInfo(email, redisTemplate);
+    public static void setCurrentUser(Long id, StringRedisTemplate redisTemplate) {
+        CurrentUserDTO user = getAuthInfo(id, redisTemplate);
         LOCAL_USER.set(user);
     }
 
-    public static CurrentUserDTO getAuthInfo(String email, StringRedisTemplate redisTemplate) {
-        String userJson = redisTemplate.opsForValue().get(getUserRedisKey(email));
+    public static CurrentUserDTO getAuthInfo(Long id, StringRedisTemplate redisTemplate) {
+        String userJson = redisTemplate.opsForValue().get(getUserRedisKey(id));
         try {
             return new ObjectMapper().readValue(userJson, CurrentUserDTO.class);
         } catch (IOException e) {
@@ -63,10 +74,15 @@ public class AuthUtils {
     }
 
     public static boolean authed(String token, StringRedisTemplate redisTemplate) {
-        String email = JwtUtils.parseToEmail(token);
-        Boolean authed = redisTemplate.hasKey(getUserRedisKey(email));
-        if (authed != null && authed) {
-            setCurrentUser(email, redisTemplate);
+        Long id;
+        try {
+            id = JwtUtils.parse(token, SECRET, Long.class);
+        } catch (TokenExpiredException | SignatureVerificationException e) {
+            throw new AuthException("登录失效，请重新登录");
+        }
+        String t = redisTemplate.opsForValue().get(getUserTokenRedisKey(id));
+        if (t != null && t.equals(token)) {
+            setCurrentUser(id, redisTemplate);
             flushExpireTime(redisTemplate);
             return true;
         }
@@ -74,7 +90,8 @@ public class AuthUtils {
     }
 
     public static void flushExpireTime(StringRedisTemplate redisTemplate) {
-        redisTemplate.expire(getUserRedisKey(getCurrentUserEmail()), 30, TimeUnit.MINUTES);
+        redisTemplate.expire(getUserRedisKey(getCurrentUserId()), 30, TimeUnit.MINUTES);
+        redisTemplate.expire(getUserTokenRedisKey(getCurrentUserId()), 30, TimeUnit.MINUTES);
     }
 
     public static CurrentUserDTO getCurrentUser() {
@@ -101,8 +118,12 @@ public class AuthUtils {
         return getCurrentUser().getOrganizationId();
     }
 
-    private static String getUserRedisKey(String email) {
-        return (USER_REDIS_KEY_PIX + email).toUpperCase();
+    private static String getUserRedisKey(Long userId) {
+        return (USER_REDIS_KEY_PIX + userId).toUpperCase();
+    }
+
+    private static String getUserTokenRedisKey(Long userId) {
+        return (USER_TOKEN_REDIS_KEY_PIX + userId).toUpperCase();
     }
 
 }

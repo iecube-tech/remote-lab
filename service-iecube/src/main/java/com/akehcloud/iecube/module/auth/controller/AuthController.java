@@ -22,7 +22,7 @@ public class AuthController {
     @PostMapping(value = "/login")
     public LoginResultDTO login(@RequestBody LoginDTO loginDTO) {
         LoginResultDTO loginResultDTO = authService.login(loginDTO);
-        AuthUtils.cache(loginResultDTO.getCurrentUser(), stringRedisTemplate);
+        AuthUtils.cache(loginResultDTO.getCurrentUser(), loginResultDTO.getAccessToken(), stringRedisTemplate);
         return loginResultDTO;
     }
 

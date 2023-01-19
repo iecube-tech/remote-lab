@@ -26,6 +26,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
         registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/login")
+                .excludePathPatterns("/user/password/reset")
                 .excludePathPatterns("/error/**")
                 .excludePathPatterns("/local-resource/**");
     }

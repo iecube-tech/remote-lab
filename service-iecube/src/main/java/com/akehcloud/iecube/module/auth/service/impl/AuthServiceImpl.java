@@ -18,7 +18,7 @@ import com.akehcloud.iecube.module.school.dto.SchoolDTO;
 import com.akehcloud.iecube.module.school.service.SchoolService;
 import com.akehcloud.iecube.module.user.dto.UserDTO;
 import com.akehcloud.iecube.module.user.service.UserService;
-import com.akehcloud.iecube.util.JwtUtils;
+import com.akehcloud.iecube.util.AuthUtils;
 import com.akehcloud.util.AssertUtils;
 import com.akehcloud.util.ModelUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -78,11 +78,11 @@ public class AuthServiceImpl implements AuthService {
             }
             currentUser.setPermissionCodeList(allPermissions);
             return LoginResultDTO.result(
-                    JwtUtils.toJwtToken(user.getEmail()),
+                    AuthUtils.createToken(currentUser.getId()),
                     currentUser
             );
         }
-        throw new AuthException("用户名或密码错误");
+        throw new AuthException("用户名或密码错误", 10003);
     }
 
     /**

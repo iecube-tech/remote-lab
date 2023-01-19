@@ -38,4 +38,6 @@ public interface UserService {
 
     void modifyAssistantIdentity(Long id);
 
+    void resetPassword(String email);
+
 }

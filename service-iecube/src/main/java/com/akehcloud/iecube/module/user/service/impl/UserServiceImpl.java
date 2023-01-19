@@ -1,8 +1,8 @@
 package com.akehcloud.iecube.module.user.service.impl;
 
-import com.akehcloud.exception.runtime.AuthException;
 import com.akehcloud.exception.runtime.SystemException;
 import com.akehcloud.exception.runtime.UnprocessableException;
+import com.akehcloud.iecube.email.EmailParams;
 import com.akehcloud.iecube.email.EmailSender;
 import com.akehcloud.iecube.enums.common.EnableStatusEnum;
 import com.akehcloud.iecube.enums.user.UserSchoolStatusEnum;
@@ -41,7 +41,8 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 public class UserServiceImpl implements UserService {
 
-    private static final String EMAIL_SUBJECT = "MyElab新用户通知";
+    private static final String EMAIL_SUBJECT = "IECubeOnline 新用户通知";
+    private static final String EMAIL_RESET_PASSWORD_SUBJECT = "IECubeOnline 密码重置";
     private static final String STUDENT_TEXT = "学生";
     private static final String TEACHER_TEXT = "老师";
     private static final String AT_SCHOOL_TEXT = "在校";
@@ -49,6 +50,8 @@ public class UserServiceImpl implements UserService {
 
     @Value("${email.template.user-activate}")
     private Resource userActivateEmail;
+    @Value("${email.template.user-reset-password}")
+    private Resource userResetPasswordEmail;
 
     @Autowired
     private UserMapper userMapper;
@@ -69,16 +72,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO save(UserDTO dto) {
+        String password = this.generatePassword();
+        UserDTO userDTO = this.toSave(dto, password);
+        this.sendUserActiveEmail(dto, password);
+        return userDTO;
+    }
+
+    private UserDTO toSave(UserDTO dto, String password) {
         AssertUtils.notNull(dto.getName(), "用户姓名不能为空");
         AssertUtils.notNull(dto.getEmail(), "用户邮箱不能为空");
         AssertUtils.notNull(dto.getType(), "用户类型不能为空");
-
         UserDO user = userRepository.findByEmail(dto.getEmail());
         AssertUtils.isNull(user, "该邮箱已存在");
 
-        String password = this.generatePassword();
         dto.setPassword(DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8)));
-
         dto.setStatus(EnableStatusEnum.ENABLE);
         if (UserTypeEnum.STUDENT.equals(dto.getType()) || UserTypeEnum.TEACHER.equals(dto.getType())) {
             dto.setSchoolStatus(UserSchoolStatusEnum.IN_SCHOOL);
@@ -99,7 +106,6 @@ public class UserServiceImpl implements UserService {
         if (CollectionUtils.isNotEmpty(roleCodeList)) {
             roleService.saveOrUpdate(userDO.getId(), type.getRoleList());
         }
-        this.sendEmail(dto, password);
         return ModelUtils.convert(userDO, UserDTO.class);
     }
 
@@ -107,7 +113,7 @@ public class UserServiceImpl implements UserService {
         return ((int) ((Math.random() * 9 + 1) * 100000)) + "";
     }
 
-    public void sendEmail(UserDTO userDTO, String password) {
+    public void sendUserActiveEmail(UserDTO userDTO, String password) {
         String text = this.buildText(userActivateEmail, userDTO.getName(), password);
         emailSender.send(userDTO.getEmail(), EMAIL_SUBJECT, text);
     }
@@ -226,6 +232,7 @@ public class UserServiceImpl implements UserService {
         if (workbook.getNumberOfSheets() < 1) {
             throw new UnprocessableException("至少包含一个Sheet");
         }
+        List<EmailParams> toSendEmail = new ArrayList<>();
         for (int sheetNum = 0; sheetNum < workbook.getNumberOfSheets(); sheetNum++) {
             Sheet sheet = workbook.getSheetAt(sheetNum);
             // 解析row
@@ -248,10 +255,17 @@ public class UserServiceImpl implements UserService {
                     userDTO.setSchoolStatus(this.parseStatus(rowData.get(UserExcelHeaderEnum.SCHOOL_STATUS)));
                     userDTO.setCreatorId(currentUserId);
                     userDTO.setType(this.parseUserType(rowData.get(UserExcelHeaderEnum.TYPE)));
-                    this.save(userDTO);
+                    String password = this.generatePassword();
+                    UserDTO result = this.toSave(userDTO, password);
+                    toSendEmail.add(EmailParams.build(
+                            EMAIL_SUBJECT,
+                            this.buildText(this.userActivateEmail, result.getName(), password),
+                            result.getEmail()
+                    ));
                 }
             }
         }
+        emailSender.batchSend(toSendEmail);
     }
 
     @Override
@@ -281,6 +295,17 @@ public class UserServiceImpl implements UserService {
         if (CollectionUtils.isNotEmpty(UserTypeEnum.ASSISTANT.getRoleList())) {
             roleService.bindRole(id, UserTypeEnum.ASSISTANT.getRoleList());
         }
+    }
+
+    @Override
+    public void resetPassword(String email) {
+        AssertUtils.hasText(email, "邮箱不能为空");
+        UserDO user = userRepository.findByEmail(email);
+        AssertUtils.notNull(user, "该邮箱不存在");
+        String password = this.generatePassword();
+        user.setPassword(DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8)));
+        String text = this.buildText(this.userResetPasswordEmail, user.getName(), password);
+        emailSender.send(user.getEmail(), EMAIL_RESET_PASSWORD_SUBJECT, text);
     }
 
     private void updateValidate(UserDTO userDTO) {

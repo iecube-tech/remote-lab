@@ -265,10 +265,12 @@
         FROM lesson_schedule ls
                  LEFT JOIN lesson_schedule_join_device lsjd ON ls.id = lsjd.lesson_schedule_id
         WHERE lsjd.device_id = #{deviceId}
-          AND (ls.start_date BETWEEN #{startDate} AND #{endDate} OR
-               ls.end_date BETWEEN #{startDate} AND #{endDate})
-          AND (ls.start_time BETWEEN #{startTime} AND #{endTime}
-            OR ls.end_time BETWEEN #{startTime} AND #{endTime})
+          AND (
+                (#{startDate} BETWEEN ls.start_date AND ls.end_date) OR
+                (#{endDate} BETWEEN ls.start_date AND ls.end_date) OR
+                (ls.start_date BETWEEN #{startDate} AND #{endDate}) OR
+                (ls.end_date BETWEEN #{startDate} AND #{endDate})
+              )
         LIMIT 1
 
     </select>

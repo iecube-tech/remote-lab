@@ -14,4 +14,5 @@ public class DeviceOperatingDTO {
     private String signalServerUrl;
     private String signalServerApiKey;
     private String liveUrl;
+    private String ysAccessToken;
 }
