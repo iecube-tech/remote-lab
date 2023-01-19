@@ -107,9 +107,8 @@ public class LessonScheduleServiceImpl implements LessonScheduleService {
     private void checkBindDeviceTime(LessonScheduleDTO dto, String deviceName) {
         LessonScheduleDTO lessonScheduleDTO = lessonScheduleMapper.checkBindDeviceTime(dto);
         if (Objects.nonNull(lessonScheduleDTO)) {
-            String message = "设备：" + deviceName + " 在" +
-                    lessonScheduleDTO.getStartDate() + "至" + lessonScheduleDTO.getEndDate() + "  " +
-                    lessonScheduleDTO.getStartTime() + "至" + lessonScheduleDTO.getEndTime() +
+            String message = "设备：" + deviceName + " 在 " +
+                    lessonScheduleDTO.getStartDate() + "至" + lessonScheduleDTO.getEndDate() + " " +
                     "已被使用,请重新选择时间";
             throw new UnprocessableException(message);
         }

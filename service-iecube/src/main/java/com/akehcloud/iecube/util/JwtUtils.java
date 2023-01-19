@@ -5,6 +5,8 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import java.util.Date;
+
 /**
  * JWT工具类
  *
@@ -64,6 +66,21 @@ public class JwtUtils {
         return JWT.create()
                 .withClaim("username", username)
                 .sign(algorithm);
+    }
+
+    public static String sign(Long value, String secret) {
+        // 附带username信息
+        return JWT.create()
+                .withClaim("value", value)
+                .withIssuedAt(new Date())
+                .sign(Algorithm.HMAC256(secret));
+    }
+
+    public static <T> T parse(String token, String secret, Class<T> clazz) {
+        return JWT.require(Algorithm.HMAC256(secret))
+                .build()
+                .verify(token)
+                .getClaim("value").as(clazz);
     }
 
 }

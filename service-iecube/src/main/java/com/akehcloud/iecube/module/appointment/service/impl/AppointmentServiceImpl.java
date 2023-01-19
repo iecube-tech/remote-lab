@@ -6,12 +6,12 @@ import com.akehcloud.iecube.module.appointment.mapper.AppointmentMapper;
 import com.akehcloud.iecube.module.appointment.qo.AppointmentQO;
 import com.akehcloud.iecube.module.appointment.service.AppointmentService;
 import com.akehcloud.iecube.module.appointment.vo.AppointmentVO;
-import com.akehcloud.iecube.module.device.service.DeviceService;
 import com.akehcloud.iecube.module.lessonschedule.dto.DeviceOperatingDTO;
 import com.akehcloud.iecube.module.lessonschedule.mapper.LessonScheduleMapper;
 import com.akehcloud.iecube.module.lessonschedule.service.LessonScheduleService;
 import com.akehcloud.iecube.module.lessonschedule.vo.LessonScheduleVO;
 import com.akehcloud.iecube.module.studentcourse.mapper.StudentLessonScheduleMapper;
+import com.akehcloud.iecube.ys.YsApi;
 import com.akehcloud.model.PageTuple;
 import com.akehcloud.util.AssertUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -35,6 +36,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     private LessonScheduleMapper lessonScheduleMapper;
     @Autowired
     private StudentLessonScheduleMapper studentLessonScheduleMapper;
+
+    @Autowired
+    private YsApi ysApi;
 
     @Autowired
     private LessonScheduleService lessonScheduleService;
@@ -104,11 +108,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             return PageTuple.empty();
         }
         List<AppointmentVO> list = appointmentMapper.myAppointment(qo);
-        /**HashSet set = new HashSet(list);
-        list.clear();
-        list.addAll(set);*/
-        List newList = list.stream().distinct().collect(Collectors.toList());
-        return PageTuple.of(count, newList);
+        return PageTuple.of(count, list);
     }
 
     @Override
@@ -131,7 +131,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         AssertUtils.state(startTime.isBefore(LocalDateTime.now()), "预约未开始");
         LocalDateTime endTime = LocalDateTime.of(appointment.getAppointmentDate(), appointment.getEndTime());
         AssertUtils.state(endTime.isAfter(LocalDateTime.now()), "预约已结束");
-        return lessonScheduleService.getDeviceOperating(dto.getLessonScheduleId(), dto.getDeviceId());
+        DeviceOperatingDTO deviceOperating = lessonScheduleService.getDeviceOperating(dto.getLessonScheduleId(), dto.getDeviceId());
+        deviceOperating.setYsAccessToken(ysApi.getAccessToken());
+        return deviceOperating;
     }
 
 }

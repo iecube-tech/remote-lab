@@ -121,4 +121,10 @@ public class UserController extends BaseController {
         userDTO.setId(AuthUtils.getCurrentUserId());
         userService.modifyPwd(userDTO);
     }
+
+    @PutMapping(value = "/password/reset")
+    public void resetPassword(@RequestBody UserDTO userDTO) {
+        userService.resetPassword(userDTO.getEmail());
+    }
+
 }

@@ -44,7 +44,7 @@ public class EmailSender {
             for (EmailParams emailParams : paramsList) {
                 this.send(emailParams.getReceivers(), emailParams.getSubject(), emailParams.getText());
                 try {
-                    TimeUnit.SECONDS.sleep(10);
+                    TimeUnit.SECONDS.sleep(3);
                 } catch (InterruptedException e) {
                     LOGGER.error("线程唤醒异常", e);
                 }

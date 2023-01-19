@@ -1,6 +1,7 @@
 package com.akehcloud.iecube.interceptor;
 
 import com.akehcloud.exception.runtime.AuthException;
+import com.akehcloud.exception.runtime.UnLoginException;
 import com.akehcloud.iecube.util.AuthUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -34,12 +35,12 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
         String token = request.getHeader(AuthUtils.ACCESS_TOKE_KEY);
         if (!StringUtils.hasText(token)) {
-            throw new AuthException();
+            throw new UnLoginException("请先登录");
         }
         if (AuthUtils.authed(token, redisTemplate)) {
             return true;
         }
-        throw new AuthException();
+        throw new AuthException("登录失效，请重新登录");
     }
 
 }
