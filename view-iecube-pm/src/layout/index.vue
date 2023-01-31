@@ -1,15 +1,15 @@
 <template>
   <div :class="classObj" class="app-wrapper">
-    <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
+    <div v-if="device === 'mobile' && sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
     <sidebar class="sidebar-container" />
     <div class="main-container">
-      <div :class="{'fixed-header':fixedHeader}">
+      <div :class="{ 'fixed-header': fixedHeader }">
         <navbar />
       </div>
       <app-main />
     </div>
     <div class="icp" title="https://beian.miit.gov.cn/" @click="open">
-      æ©ICP±∏20018557∫≈-2
+      ‰∫¨ICPÂ§á20018557Âè∑-2
     </div>
   </div>
 </template>
