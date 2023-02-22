@@ -26,4 +26,6 @@ public interface AppointmentService {
 
     DeviceOperatingDTO getDeviceOperating(AppointmentDTO dto);
 
+    List<AppointmentDTO> lessonScheduleAppointmentListCanappoint(AppointmentQO qo);
+
 }

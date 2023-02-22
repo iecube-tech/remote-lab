@@ -71,6 +71,13 @@
           AND appointment_date = #{appointmentDate}
     </select>
 
+    <select id="lessonScheduleAppointmentListCanappoint" resultType="com.akehcloud.iecube.module.appointment.dto.AppointmentDTO">
+        SELECT *
+        FROM appointment
+        WHERE lesson_schedule_id = #{lessonScheduleId}
+          AND (appointment_date between #{startDate} and #{endDate})
+    </select>
+
     <select id="getAppointmentByStudentIdAndLessonScheduleId"
             resultType="com.akehcloud.iecube.module.appointment.dto.AppointmentDTO">
         SELECT *

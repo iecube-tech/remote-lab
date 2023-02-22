@@ -93,6 +93,18 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public List<AppointmentDTO> lessonScheduleAppointmentListCanappoint(AppointmentQO qo){
+        AssertUtils.notNull(qo.getLessonScheduleId(), "排课id不能为空");
+        AssertUtils.notNull(qo.getStartDate(), "开始日期不能为空");
+        AssertUtils.notNull(qo.getEndDate(), "截止日期不能为空");
+        List<AppointmentDTO> list = appointmentMapper.lessonScheduleAppointmentListCanappoint(qo);
+        if (CollectionUtils.isEmpty(list)) {
+            return new ArrayList<>();
+        }
+        return list;
+    }
+
+    @Override
     public List<AppointmentDTO> getAppointmentByStudentIdAndLessonScheduleId(Long studentId, Long lessonScheduleId) {
         List<AppointmentDTO> list = appointmentMapper.getAppointmentByStudentIdAndLessonScheduleId(studentId, lessonScheduleId);
         if (CollectionUtils.isEmpty(list)) {

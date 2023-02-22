@@ -21,6 +21,8 @@ public interface AppointmentMapper {
 
     List<AppointmentDTO> lessonScheduleAppointmentList(AppointmentQO qo);
 
+    List<AppointmentDTO> lessonScheduleAppointmentListCanappoint(AppointmentQO qo);
+
     List<AppointmentDTO> getAppointmentByStudentIdAndLessonScheduleId(@Param("studentId") Long studentId, @Param("lessonScheduleId") Long lessonScheduleId);
 
     Long myAppointmentCount(Long studentId);
