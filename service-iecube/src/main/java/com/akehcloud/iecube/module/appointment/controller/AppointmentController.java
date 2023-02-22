@@ -47,5 +47,10 @@ public class AppointmentController {
         return appointmentService.myAppointment(qo);
     }
 
+    @PostMapping(value = "/canappoint")
+    public List<AppointmentDTO> lessonScheduleAppointmentListCanappoint (@RequestBody AppointmentQO qo){
+        return appointmentService.lessonScheduleAppointmentListCanappoint(qo);
+    }
+
 
 }

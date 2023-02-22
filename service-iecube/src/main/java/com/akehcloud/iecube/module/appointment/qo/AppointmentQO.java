@@ -10,5 +10,7 @@ public class AppointmentQO {
     private Long lessonScheduleId;
     private Long deviceId;
     private LocalDate appointmentDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private Long studentId;
 }

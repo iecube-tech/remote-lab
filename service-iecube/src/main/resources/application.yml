@@ -4,10 +4,10 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
   datasource:
-    url: jdbc:mysql://172.26.177.212:3306/iecube?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+    url: jdbc:mysql://192.168.8.108:3306/iecube?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
     username: root
 #    password: iecube2022
-    password: 11223366zxl
+    password: 12345678
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -17,7 +17,7 @@ spring:
     port: 465
     host: smtp.partner.outlook.cn
     username: iecubeonline@iecube.com.cn
-    password: Iecube2021
+    password: Iecube2021.
     default-encoding: UTF-8
     properties:
       mail:
@@ -37,7 +37,7 @@ spring:
       ddl-auto: update
     show-sql: on
   redis:
-    host: 172.26.177.212
+    host: 192.168.8.108
     port: 6379
     #password:
   web:
@@ -107,6 +107,10 @@ email:
   template:
     user-activate: classpath:template/user_activate_email.ftl
     user-reset-password: classpath:template/user_reset_password_email.ftl
+ys:
+  host: 'https://open.ys7.com'
+  app-key: '69e0767f81634f4daa2b87b2869f4666'
+  secret: '10c0b348d55bbc5bea2ef3262e83b823'
 
 business:
   user:
