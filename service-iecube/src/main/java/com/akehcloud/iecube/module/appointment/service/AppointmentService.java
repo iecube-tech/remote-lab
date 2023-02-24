@@ -6,6 +6,7 @@ import com.akehcloud.iecube.module.appointment.vo.AppointmentVO;
 import com.akehcloud.iecube.module.lessonschedule.dto.DeviceOperatingDTO;
 import com.akehcloud.model.PageTuple;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface AppointmentService {
@@ -26,6 +27,6 @@ public interface AppointmentService {
 
     DeviceOperatingDTO getDeviceOperating(AppointmentDTO dto);
 
-    List<AppointmentDTO> lessonScheduleAppointmentListCanappoint(AppointmentQO qo);
+    List<LocalDate> lessonScheduleAppointmentListCanNotAppointDate(AppointmentQO qo);
 
 }

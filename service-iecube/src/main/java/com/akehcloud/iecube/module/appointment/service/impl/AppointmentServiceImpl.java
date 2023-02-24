@@ -14,16 +14,20 @@ import com.akehcloud.iecube.module.studentcourse.mapper.StudentLessonScheduleMap
 import com.akehcloud.iecube.ys.YsApi;
 import com.akehcloud.model.PageTuple;
 import com.akehcloud.util.AssertUtils;
+import jdk.nashorn.internal.runtime.PropertyMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -93,15 +97,23 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<AppointmentDTO> lessonScheduleAppointmentListCanappoint(AppointmentQO qo){
+    public List<LocalDate> lessonScheduleAppointmentListCanNotAppointDate(AppointmentQO qo){
         AssertUtils.notNull(qo.getLessonScheduleId(), "排课id不能为空");
-        AssertUtils.notNull(qo.getStartDate(), "开始日期不能为空");
-        AssertUtils.notNull(qo.getEndDate(), "截止日期不能为空");
-        List<AppointmentDTO> list = appointmentMapper.lessonScheduleAppointmentListCanappoint(qo);
+        List<AppointmentDTO> list = appointmentMapper.lessonScheduleAppointmentListCanNotAppointDate(qo);
         if (CollectionUtils.isEmpty(list)) {
             return new ArrayList<>();
         }
-        return list;
+        List<LocalDate> result = new ArrayList<>();
+        Map<LocalDate, List<AppointmentDTO>> localTimeListMap = list.stream().collect(Collectors.groupingBy(AppointmentDTO::getAppointmentDate));
+        localTimeListMap.forEach((k, v) -> {
+            // 按照状态进行分组，只获取状态为1的数据
+            Map<Boolean, List<AppointmentDTO>> statusInfoMap = v.stream().collect(Collectors.groupingBy(AppointmentDTO::getStatus));
+            // 只有当天是同一种状态的数据，在进行前端数据返回
+            if (statusInfoMap.keySet().size() == 1 && !statusInfoMap.keySet().stream().findFirst().get()) {
+                result.add(k);
+            }
+        });
+        return result;
     }
 
     @Override

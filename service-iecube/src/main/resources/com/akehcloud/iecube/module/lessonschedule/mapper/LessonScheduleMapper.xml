@@ -6,13 +6,13 @@
     <insert id="save" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO lesson_schedule
         (
-        id, school_id, lesson_id, start_date, end_date, start_time, end_time, weight, homework_require,
+        id, school_id, lesson_id, start_date, end_date, start_time, end_time, dayLimit, weight, homework_require,
         appointment_duration, appointment_count, assistant_id, creator_id, create_time, last_operate_time,
         last_operator_id
         )
         VALUES
         (
-        NULL, #{schoolId}, #{lessonId}, #{startDate}, #{endDate}, #{startTime}, #{endTime}, #{weight},
+        NULL, #{schoolId}, #{lessonId}, #{startDate}, #{endDate}, #{startTime}, #{endTime}, #{dayLimit}, #{weight},
         #{homeworkRequire}, #{appointmentDuration}, #{appointmentCount}, #{assistantId}, #{creatorId}, NOW(), NOW(),
         #{creatorId}
         )
@@ -43,6 +43,7 @@
         lc.end_date end_date,
         lc.start_time start_time,
         lc.end_time end_time,
+        lc.day_limit day_limit,
         lc.appointment_duration appointment_duration,
         lc.appointment_count appointment_count,
         lc.homework_require homework_require,
@@ -67,6 +68,7 @@
         <result column="end_date" property="endDate"/>
         <result column="start_time" property="startTime"/>
         <result column="end_time" property="endTime"/>
+        <result column="day_limit" property="dayLimit"/>
         <result column="appointment_duration" property="appointmentDuration"/>
         <result column="appointment_count" property="appointmentCount"/>
         <result column="homework_require" property="homeworkRequire"/>
@@ -107,6 +109,7 @@
             <if test="assistantId!=null">
                 assistant_id = #{assistantId},
             </if>
+            day_limit = #{dayLimit},
             last_operate_time = NOW(),
             last_operator_id = #{lastOperatorId}
         </set>
