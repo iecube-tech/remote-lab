@@ -4,7 +4,7 @@
       <el-form>
         <el-row :gutter="20" style="margin-bottom: 20px">
           <el-col :span="12">
-            <el-card style="height: 520px">
+            <el-card style="height: 550px">
               <h4>基础设置</h4>
               <el-form-item label="课程">
                 {{ data.courseName }}
@@ -24,13 +24,16 @@
               <el-form-item label="可预约次数">
                 {{ data.appointmentCount }}
               </el-form-item>
+              <el-form-item label="可预约时间段限制">
+                {{ data.dayLimit }}
+              </el-form-item>
               <el-form-item v-if="data.assistantId && data.assistantName" label="助教">
                 {{ data.assistantName }}
               </el-form-item>
             </el-card>
           </el-col>
           <el-col :span="12">
-            <el-card style="margin-bottom: 20px; height: 520px">
+            <el-card style="margin-bottom: 20px; height: 550px">
               <h4>学生设置</h4>
               <div v-for="item in data.studentList" :key="'lessonScheduleStudent' + item.id" class="student-card">
                 <span class="student-name">{{ item.name }}</span>
@@ -48,7 +51,8 @@
               </el-form-item>
               <el-form-item label="附件">
                 <div style="margin-top: 40px">
-                  <div v-for="(item, index) in data.homeworkAttachmentList" :key="'homeworkAttachment' + index" class="attachment">{{ item.filename }}</div>
+                  <div v-for="(item, index) in data.homeworkAttachmentList" :key="'homeworkAttachment' + index"
+                    class="attachment">{{ item.filename }}</div>
                 </div>
               </el-form-item>
             </el-card>
@@ -58,12 +62,8 @@
               <h4>设备设置</h4>
               <div>
                 <el-row :gutter="20">
-                  <el-col
-                    v-for="item in data.deviceList"
-                    :key="'lessonScheduleDevice' + item.id"
-                    :span="8"
-                    style="margin-top: 20px"
-                  >
+                  <el-col v-for="item in data.deviceList" :key="'lessonScheduleDevice' + item.id" :span="8"
+                    style="margin-top: 20px">
                     <el-card style="height: 120px">
                       <div style="overflow: hidden; ">
                         <div class="device-id">设备ID：{{ item.deviceId }}</div>
@@ -117,6 +117,7 @@ export default {
   font-weight: 600;
   cursor: pointer;
 }
+
 .device-name {
   font-size: 16px;
   color: #303133;

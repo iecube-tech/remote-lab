@@ -4,68 +4,48 @@
       <el-form ref="form" :model="form" :rules="rules">
         <el-row :gutter="20" style="margin-bottom: 20px">
           <el-col :span="12">
-            <el-card style="height: 580px; margin-bottom: 20px; overflow-y: auto">
+            <el-card style="height: 610px; margin-bottom: 20px; overflow-y: auto">
               <h4>课程设置</h4>
               <el-form-item label="课程" prop="courseId">
                 <el-select v-model="form.courseId" size="small" placeholder="课程" @change="listLesson">
-                  <el-option
-                    v-for="item in courseList"
-                    :key="'teacherCourse' + item.id"
-                    :value="item.id"
-                    :label="item.name"
-                  />
+                  <el-option v-for="item in courseList" :key="'teacherCourse' + item.id" :value="item.id"
+                    :label="item.name" />
                 </el-select>
               </el-form-item>
               <el-form-item label="课节" prop="lessonId">
                 <el-select v-model="form.lessonId" size="small" placeholder="课节">
-                  <el-option
-                    v-for="item in lessonList"
-                    :key="'teacherLesson' + item.id"
-                    :value="item.id"
-                    :label="item.name"
-                  />
+                  <el-option v-for="item in lessonList" :key="'teacherLesson' + item.id" :value="item.id"
+                    :label="item.name" />
                 </el-select>
               </el-form-item>
               <el-form-item label="开设日期" prop="dateRange">
-                <el-date-picker
-                  v-model="form.dateRange"
-                  size="small"
-                  value-format="yyyy-MM-dd"
-                  format="yyyy-MM-dd"
-                  type="daterange"
-                  range-separator="至"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                />
+                <el-date-picker v-model="form.dateRange" size="small" value-format="yyyy-MM-dd" format="yyyy-MM-dd"
+                  type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" />
               </el-form-item>
               <el-form-item label="开设时间" prop="timeRange">
-                <el-time-picker
-                  v-model="form.timeRange"
-                  size="small"
-                  value-format="HH:mm"
-                  format="HH:mm"
-                  is-range
-                  range-separator="至"
-                  start-placeholder="开始时间"
-                  end-placeholder="结束时间"
-                  placeholder="选择时间范围"
-                />
+                <el-time-picker v-model="form.timeRange" size="small" value-format="HH:mm" format="HH:mm" is-range
+                  range-separator="至" start-placeholder="开始时间" end-placeholder="结束时间" placeholder="选择时间范围" />
               </el-form-item>
-              <el-form-item label="单次时长" prop="appointmentDuration">
+              <el-form-item label="单次时长(分钟)" prop="appointmentDuration">
                 <el-input-number v-model="form.appointmentDuration" size="small" :min="1" />
               </el-form-item>
               <el-form-item label="可预约次数" prop="appointmentCount">
                 <el-input-number v-model="form.appointmentCount" size="small" />
               </el-form-item>
+              <el-form-item label="可预约时间段限制">
+                <el-select v-model="form.dayLimit" size="small">
+                  <el-option label="不限" :value=null></el-option>
+                  <el-option label="可预约今明两天" :value="2"></el-option>
+                  <el-option label="可预约一周内" :value="7"></el-option>
+                  <el-option label="可预约两周内" :value="14"></el-option>
+                  <el-option label="可预约30天内" :value="30"></el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item>
                 <el-button type="text" @click="toSelectAssistant">选择助教</el-button>
                 <div>
-                  <el-tag
-                    v-if="assistantId && assistantName"
-                    :key="assistantId"
-                    closable
-                    @close="delAssistant"
-                  >{{ assistantName }}
+                  <el-tag v-if="assistantId && assistantName" :key="assistantId" closable @close="delAssistant">{{
+                    assistantName }}
                   </el-tag>
                 </div>
               </el-form-item>
@@ -73,7 +53,7 @@
           </el-col>
 
           <el-col :span="12">
-            <el-card style="margin-bottom: 20px; height: 580px; overflow-y: auto">
+            <el-card style="margin-bottom: 20px; height: 610px; overflow-y: auto">
               <h4>学生设置</h4>
               <div>
                 <el-button type="text" @click="toSelectStudent">添加学生</el-button>
@@ -95,18 +75,11 @@
               </el-form-item>
               <el-form-item>
                 <div>
-                  <el-upload
-                    accept=".xls,.xlsx,.pdf,.zip,.jpg,.png"
-                    :before-upload="attachmentUpload"
-                    action="/"
-                  >
+                  <el-upload accept=".xls,.xlsx,.pdf,.zip,.jpg,.png" :before-upload="attachmentUpload" action="/">
                     <el-button class="list-button" type="text">添加附件</el-button>
                   </el-upload>
-                  <div
-                    v-for="(item, index) in form.homeworkAttachmentList"
-                    :key="'homeworkAttachment' + index"
-                    class="attachment"
-                  >{{ item.filename }}
+                  <div v-for="(item, index) in form.homeworkAttachmentList" :key="'homeworkAttachment' + index"
+                    class="attachment">{{ item.filename }}
                   </div>
                 </div>
               </el-form-item>
@@ -119,21 +92,13 @@
               <el-button type="text" @click="toAddDevice">添加设备</el-button>
               <div>
                 <el-row :gutter="20">
-                  <el-col
-                    v-for="(item, index) in deviceList"
-                    :key="'lessonScheduleDevice' + item.id"
-                    :span="8"
-                    style="margin-top: 20px"
-                  >
+                  <el-col v-for="(item, index) in deviceList" :key="'lessonScheduleDevice' + item.id" :span="8"
+                    style="margin-top: 20px">
                     <el-card style="height: 170px">
                       <div slot="header">
                         <span class="device-name">{{ item.deviceName }}</span>
-                        <el-button
-                          style="float: right; padding: 2px 0"
-                          type="text"
-                          class="button-text-danger"
-                          @click="deleteDevice(index)"
-                        ><i class="el-icon-delete" /></el-button>
+                        <el-button style="float: right; padding: 2px 0" type="text" class="button-text-danger"
+                          @click="deleteDevice(index)"><i class="el-icon-delete" /></el-button>
                       </div>
                       <div style="height: 180px; overflow: hidden; ">
                         <div class="device-id">设备ID：{{ item.deviceId }}</div>
@@ -154,30 +119,23 @@
 
     <div v-if="showSelectStudentDialog">
       <el-dialog title="添加学生" :visible.sync="showSelectStudentDialog" width="60%">
-        <user-select-table
-          :type="['STUDENT', 'ASSISTANT']"
-          :selected-in="studentList"
-          multiple
-          @on-confirm="onStudentSelected"
-          @on-cancel="showSelectStudentDialog = false"
-        />
+        <user-select-table :type="['STUDENT', 'ASSISTANT']" :selected-in="studentList" multiple
+          @on-confirm="onStudentSelected" @on-cancel="showSelectStudentDialog = false" />
       </el-dialog>
     </div>
 
     <div v-if="showSelectAssistantDialog">
-      <el-dialog title="选择助教" :visible.sync="showSelectAssistantDialog" width="60%" @closed="showSelectAssistantDialog = false">
-        <user-select-table
-          :type="['STUDENT', 'ASSISTANT']"
-          :selected-in="assistantId ? [{ id: assistantId }] : []"
-          @on-confirm="onAssistantSelected"
-          @on-cancel="showSelectAssistantDialog = false"
-        />
+      <el-dialog title="选择助教" :visible.sync="showSelectAssistantDialog" width="60%"
+        @closed="showSelectAssistantDialog = false">
+        <user-select-table :type="['STUDENT', 'ASSISTANT']" :selected-in="assistantId ? [{ id: assistantId }] : []"
+          @on-confirm="onAssistantSelected" @on-cancel="showSelectAssistantDialog = false" />
       </el-dialog>
     </div>
 
     <div v-if="showAddDeviceDialog">
       <el-dialog title="添加设备" :visible.sync="showAddDeviceDialog" width="60%">
-        <lesson-schedule-add-device :course-id="form.courseId" @on-confirm="onAddDeviceSuccess" @on-cancel="showAddDeviceDialog = false" />
+        <lesson-schedule-add-device :course-id="form.courseId" @on-confirm="onAddDeviceSuccess"
+          @on-cancel="showAddDeviceDialog = false" />
       </el-dialog>
     </div>
 
@@ -213,6 +171,7 @@ export default {
         timeRange: undefined,
         appointmentDuration: undefined,
         appointmentCount: 0,
+        dayLimit: undefined,
         homeworkRequire: undefined,
         homeworkAttachmentList: [],
         weight: 100,
@@ -305,6 +264,7 @@ export default {
           params.endDate = this.form.dateRange[1]
           params.startTime = this.form.timeRange[0]
           params.endTime = this.form.timeRange[1]
+          params.dayLimit = this.form.dayLimit
           params.deviceList = this.deviceList
           params.studentIds = this.studentList.map(o => o.id)
           params.assistantId = this.assistantId
