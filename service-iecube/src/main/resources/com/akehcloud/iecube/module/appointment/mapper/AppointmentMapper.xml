@@ -71,11 +71,16 @@
           AND appointment_date = #{appointmentDate}
     </select>
 
-    <select id="lessonScheduleAppointmentListCanappoint" resultType="com.akehcloud.iecube.module.appointment.dto.AppointmentDTO">
+    <select id="lessonScheduleAppointmentListCanNotAppointDate" resultType="com.akehcloud.iecube.module.appointment.dto.AppointmentDTO">
         SELECT *
-        FROM appointment
+        FROM `appointment`
         WHERE lesson_schedule_id = #{lessonScheduleId}
-          AND (appointment_date between #{startDate} and #{endDate})
+          AND (
+              (appointment_date > CURDATE())
+                  or
+              (appointment_date = CURDATE() and start_time >= CURTIME())
+              )
+        ORDER BY appointment_date;
     </select>
 
     <select id="getAppointmentByStudentIdAndLessonScheduleId"

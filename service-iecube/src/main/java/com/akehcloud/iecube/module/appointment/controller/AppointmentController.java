@@ -10,6 +10,7 @@ import com.akehcloud.model.PageTuple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -47,9 +48,9 @@ public class AppointmentController {
         return appointmentService.myAppointment(qo);
     }
 
-    @PostMapping(value = "/canappoint")
-    public List<AppointmentDTO> lessonScheduleAppointmentListCanappoint (@RequestBody AppointmentQO qo){
-        return appointmentService.lessonScheduleAppointmentListCanappoint(qo);
+    @PostMapping(value = "/disable-appoint")
+    public List<LocalDate> lessonScheduleAppointmentListCanNotAppointDate (@RequestBody AppointmentQO qo){
+        return appointmentService.lessonScheduleAppointmentListCanNotAppointDate(qo);
     }
 
 

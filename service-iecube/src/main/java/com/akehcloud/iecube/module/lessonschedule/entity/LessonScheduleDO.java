@@ -23,6 +23,7 @@ public class LessonScheduleDO {
     private LocalDate endDate;
     private LocalTime startTime;
     private LocalTime endTime;
+    private Integer dayLimit;
     private Integer appointmentDuration;
     private Integer appointmentCount;
     private String homeworkRequire;

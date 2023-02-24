@@ -22,6 +22,7 @@ public class LessonScheduleDTO {
     private LocalTime startTime;
     @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
+    private Integer dayLimit;
     private Integer appointmentDuration;
     private Integer appointmentCount;
     private String homeworkRequire;
