@@ -4,7 +4,7 @@
       <div class="lesson-container">
         <div class="lesson-baseInfo">
           <img v-if="lessonDetail.coverUrl" :src="'local-resource/' + lessonDetail.coverUrl" alt="lesson"
-               class="lesson-img">
+            class="lesson-img">
           <div class="lesson-baseInfo-container">
             <div class="lesson-name">{{ lessonDetail.name }}</div>
             <div class="lesson-summary">{{ lessonDetail.summary }}</div>
@@ -12,18 +12,20 @@
             <div v-if="lessonDetail.attachmentList && lessonDetail.attachmentList.length > 0">
               附件下载:
               <span v-for="file in lessonDetail.attachmentList" :key="'file' + file.key">
-              <span class="lesson-fileName">{{ file.filename }}</span>
-              <a :href="'local-resource/' + file.key" :download="file.filename" class="lesson-fileDown">下载</a>
-            </span>
+                <span class="lesson-fileName">{{ file.filename }}</span>
+                <a :href="'local-resource/' + file.key" :download="file.filename" class="lesson-fileDown">下载</a>
+              </span>
             </div>
             <div v-if="schedule && lessonScheduleDetail" class="lesson-personal">
               <div class="lesson-date">
-                开放日期：{{ lessonScheduleDetail.startDate }} 至 {{ lessonScheduleDetail.endDate }}
+                <span>开放日期：{{ lessonScheduleDetail.startDate }} 至 {{
+                  lessonScheduleDetail.endDate }}
+                </span>
               </div>
               <div class="lesson-operation">
                 <el-button type="primary" plain round
-                           v-if="(!lessonScheduleDetail) || ( (new Date(lessonScheduleDetail.endDate).getTime() + 24 * 60 * 60 * 1000)  > new Date().getTime())"
-                           @click="toAppointment">实验预约
+                  v-if="(!lessonScheduleDetail) || ((new Date(lessonScheduleDetail.endDate).getTime() + 24 * 60 * 60 * 1000) > new Date().getTime())"
+                  @click="toAppointment">实验预约
                 </el-button>
                 <el-button type="primary" plain round @click="submitHomework()" v-if="!(homework && homework.filename)">
                   提交作业
@@ -39,7 +41,7 @@
           <div class="lesson-contentInfo-detail">
             <div v-if="lessonDetail.contentType === 'HTML'" v-html="lessonDetail.content"></div>
             <div v-if="lessonDetail.contentType === 'FILE'">
-              <pdf-preview :url="'local-resource/' + lessonDetail.contentUrl"/>
+              <pdf-preview :url="'local-resource/' + lessonDetail.contentUrl" />
             </div>
           </div>
         </div>
@@ -52,13 +54,13 @@
             <div v-if="homeworkAttachmentList && homeworkAttachmentList.length > 0">
               附件下载:
               <span v-for="item in homeworkAttachmentList" :key="'homeworkAttachment' + item.key">
-              <span
+                <span
                   style="font-size: 14px; font-weight: 400; color: rgba(0, 0, 0, 0.85); line-height: 24px; margin-right: 20px;">{{
-                  item.filename
-                }}</span>
-              <a :href="'local-resource/' + item.key" :download="item.filename"
-                 style="font-size: 14px; font-weight: 400; color: #2DA2A6; line-height: 24px; margin-right: 60px;">下载</a>
-            </span>
+                    item.filename
+                  }}</span>
+                <a :href="'local-resource/' + item.key" :download="item.filename"
+                  style="font-size: 14px; font-weight: 400; color: #2DA2A6; line-height: 24px; margin-right: 60px;">下载</a>
+              </span>
             </div>
           </div>
         </div>
@@ -70,7 +72,7 @@
             <div>
               <div v-if="appointmentList && appointmentList.length > 0">
                 <div v-for="appointment in appointmentList"
-                     :key="'appointment' + appointment.appointmentDate + ' ' + appointment.startTime">
+                  :key="'appointment' + appointment.appointmentDate + ' ' + appointment.startTime">
                   <div class="appointmentAndHomework-detailInfo">预约日期：{{ appointment.appointmentDate }}</div>
                   <div class="appointmentAndHomework-detailInfo">
                     预约时间：{{ appointment.startTime }} ~ {{ appointment.endTime }}
@@ -78,13 +80,9 @@
                   <div class="appointmentAndHomework-detailInfo">
                     预约设备：{{ appointment.deviceOperatingDTO && appointment.deviceOperatingDTO.deviceName }}
                   </div>
-                  <el-button
-                      :type="appointment.buttonType"
-                      plain
-                      round
-                      @click="deviceControl(appointment)"
-                      :disabled="appointment.appointmentStatus !== 'IN_PROGRESS'"
-                      class="appointmentAndHomework-deviceControl">
+                  <el-button :type="appointment.buttonType" plain round @click="deviceControl(appointment)"
+                    :disabled="appointment.appointmentStatus !== 'IN_PROGRESS'"
+                    class="appointmentAndHomework-deviceControl">
                     <span v-if="appointment.appointmentStatus === 'NOT_START'">
                       <span v-if="appointment.gapMin <= 5" style="color: brown">
                         {{ appointment.gapMin }} : {{ appointment.gapSec }}</span>
@@ -93,10 +91,8 @@
                     <span v-if="appointment.appointmentStatus === 'IN_PROGRESS'">操作设备</span>
                     <span v-if="appointment.appointmentStatus === 'FINISHED'">已结束</span>
                   </el-button>
-                  <el-button
-                      v-if="appointment.appointmentStatus === 'NOT_START'"
-                      plain round @click="cancelAppointment(appointment)"
-                      class="appointmentAndHomework-deviceControl">取消预约
+                  <el-button v-if="appointment.appointmentStatus === 'NOT_START'" plain round
+                    @click="cancelAppointment(appointment)" class="appointmentAndHomework-deviceControl">取消预约
                   </el-button>
                 </div>
               </div>
@@ -104,8 +100,8 @@
               <div v-if="homework && homework.filename" class="appointmentAndHomework-detailInfo">
                 课节作业：{{ homework.filename }}
                 <span v-if="new Date(lessonScheduleDetail.startDate).getTime() <= new Date().getTime()
-                && new Date(lessonScheduleDetail.endDate).getTime() >= new Date().getTime()"
-                      class="appointmentAndHomework-operation" @click="submitHomework">
+                  && new Date(lessonScheduleDetail.endDate).getTime() >= new Date().getTime()"
+                  class="appointmentAndHomework-operation" @click="submitHomework">
                   重新上传
                 </span>
               </div>
@@ -152,33 +148,24 @@
       <el-dialog title="实验预约" :visible.sync="appointFormVisible" class="appointForm">
         <el-form :model="appointForm">
           <el-form-item label="预约日期">
-            <el-date-picker type="date"
-                            value-format="yyyy-MM-dd"
-                            :picker-options="{ disabledDate: disabledDate }"
-                            placeholder="请选择日期"
-                            v-model="appointForm.appointmentDate"
-                            @change="dateChange"
-                            class="date-picker"></el-date-picker>
+            <el-date-picker type="date" value-format="yyyy-MM-dd" :picker-options="{ disabledDate: disabledDate }"
+              placeholder="请选择日期" v-model="appointForm.appointmentDate" @change="dateChange"
+              class="date-picker"></el-date-picker>
           </el-form-item>
           <el-form-item label="选择设备">
-            <el-radio-group v-model="appointForm.deviceId"
-                            @change="deviceChange">
-              <el-radio v-for="device in lessonScheduleDetail.deviceList" :key="'device' + device.id"
-                        :label="device.id"
-                        class="device-picker"> {{ device.deviceName }}
+            <el-radio-group v-model="appointForm.deviceId" @change="deviceChange">
+              <el-radio v-for="device in lessonScheduleDetail.deviceList" :key="'device' + device.id" :label="device.id"
+                class="device-picker"> {{ device.deviceName }}
               </el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="选择课时">
             <el-select v-model="appointForm.timeRange"
-                       :placeholder="(appointForm.deviceId && appointForm.appointmentDate) ? '请选择课时' : '请先选择日期和设备'"
-                       class="time-picker">
-              <el-option
-                  v-for="item in appointOptions"
-                  :key="'timePeriod' +item.startTime + '-' + item.endTime"
-                  :label="item.startTime + '-' + item.endTime"
-                  :value="item.startTime + '-' + item.endTime"
-                  :disabled="!item.status">
+              :placeholder="(appointForm.deviceId && appointForm.appointmentDate) ? '请选择课时' : '请先选择日期和设备'"
+              class="time-picker">
+              <el-option v-for="item in appointOptions" :key="'timePeriod' + item.startTime + '-' + item.endTime"
+                :label="item.startTime + '-' + item.endTime" :value="item.startTime + '-' + item.endTime"
+                :disabled="!item.status">
               </el-option>
             </el-select>
           </el-form-item>
@@ -193,13 +180,8 @@
     <div v-if="homeworkFormVisible">
       <el-dialog title="提交作业" :visible.sync="homeworkFormVisible">
         <el-form ref="form" :model="homeworkForm" label-width="100px" label-position="top">
-          <el-upload
-              class="upload-demo"
-              drag
-              action="/"
-              accept="pdf,zip"
-              :show-file-list="false"
-              :before-upload="homeworkUpload">
+          <el-upload class="upload-demo" drag action="/" accept="pdf,zip" :show-file-list="false"
+            :before-upload="homeworkUpload">
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <div class="el-upload__tip" slot="tip">只能上传 pdf/zip 文件，且不超过 10MB</div>
@@ -223,7 +205,7 @@ import PdfPreview from '@/components/pdf-preview'
 export default {
   name: 'LessonDetail',
   components: { PdfPreview },
-  data () {
+  data() {
     return {
       type: 'public',
       schedule: false,
@@ -260,6 +242,12 @@ export default {
         timeRange: undefined,
         deviceId: undefined
       },
+      canNotAppointForm: {
+        endDate: undefined,
+        lessonScheduleId: undefined,
+      },
+      canNotAppointList: undefined,
+      list: [],
       homeworkRequire: undefined,
       weight: undefined,
       appointOptions: [],
@@ -271,17 +259,17 @@ export default {
     }
   },
   watch: {
-    '$route' (to, from) {
+    '$route'(to, from) {
       this.init()
       this.fetchData()
     }
   },
-  mounted () {
+  mounted() {
     this.init()
     this.fetchData()
   },
   methods: {
-    init () {
+    init() {
       this.courseId = parseInt(this.$route.params.courseId)
       this.lessonId = parseInt(this.$route.params.lessonId)
       if (this.$route.name === 'LessonDetail') {
@@ -297,22 +285,27 @@ export default {
         this.schedule = false
       }
     },
-    fetchData () {
+    fetchData() {
       try {
         this.getLessonDetail()
         this.listComment()
+
       } catch (e) {
         console.error(e)
         this.$message.error(e.message)
       }
     },
-    async getLessonDetail () {
+    async getLessonDetail() {
       const { model } = await lessonService.get(this.lessonId)
       this.lessonDetail = model
       if (this.schedule) {
         const { model: lessonSchedule } = await studentCourseService.getLessonSchedule(this.lessonScheduleId)
         this.lessonScheduleDetail = lessonSchedule
         this.lessonScheduleId = lessonSchedule.id
+        this.lessonScheduleIdEndDate = lessonSchedule.endDat
+        this.lessonScheduleDayLimit = lessonSchedule.dayLimit
+        console.log(this.lessonScheduleDayLimit)
+        console.log(this.lessonScheduleDayLimit - 1)
         this.studentLessonScheduleDetail = lessonSchedule.studentLessonScheduleDetail
         this.homeworkAttachmentList = lessonSchedule.homeworkAttachmentList
         this.homework = lessonSchedule.homework
@@ -324,18 +317,18 @@ export default {
         }
       }
     },
-    async listComment () {
+    async listComment() {
       const { model } = await commentService.list({ lessonId: this.lessonId, pageMode: 0 })
       this.comment = model.content
     },
-    processAppointment () {
+    processAppointment() {
       const that = this
       that.processAppointmentStatus(that)
       setInterval(() => {
         that.processAppointmentStatus(that)
       }, 1000)
     },
-    processAppointmentStatus (that) {
+    processAppointmentStatus(that) {
       for (let i = 0; i < this.appointmentList.length; i++) {
         const now = new Date()
         const appointment = this.appointmentList[i]
@@ -362,10 +355,11 @@ export default {
         }
       }
     },
-    toAppointment () {
+    toAppointment() {
+      this.listCanNotAppoint()
       this.appointFormVisible = true
     },
-    async cancelAppointment (appointment) {
+    async cancelAppointment(appointment) {
       this.$confirm(
         '确认取消预约吗？',
         '操作提示'
@@ -386,11 +380,11 @@ export default {
         this.$message.info('操作取消')
       })
     },
-    submitHomework () {
+    submitHomework() {
       this.homeworkFormVisible = true
     },
 
-    deviceControl (appointment) {
+    deviceControl(appointment) {
       console.log(appointment)
       this.$router.push({
         name: 'deviceControl',
@@ -403,7 +397,7 @@ export default {
         }
       })
     },
-    toComment () {
+    toComment() {
       this.$confirm('确认提交吗？', '提示').then(async () => {
         this.commentForm.lessonId = this.lessonDetail.id
         const {
@@ -422,17 +416,17 @@ export default {
         this.$message.info('操作取消')
       })
     },
-    deviceChange (device) {
+    deviceChange(device) {
       if (this.appointForm.deviceId && this.appointForm.appointmentDate) {
         this.listTimePeriod()
       }
     },
-    dateChange (date) {
+    dateChange(date) {
       if (this.appointForm.deviceId && this.appointForm.appointmentDate) {
         this.listTimePeriod()
       }
     },
-    async submitAppointment () {
+    async submitAppointment() {
       try {
         const params = Object.assign({}, this.appointForm)
         params.startTime = params.timeRange.split('-')[0]
@@ -449,7 +443,7 @@ export default {
         this.$message.error(e.message)
       }
     },
-    async listTimePeriod () {
+    async listTimePeriod() {
       this.appointForm.lessonScheduleId = this.lessonScheduleDetail.id
       const { model } = await appointmentService.listTimePeriod(this.appointForm)
       this.appointOptions = model
@@ -461,22 +455,46 @@ export default {
         }
       }
     },
-    disabledDate (date) {
-      const now = new Date()
-      const d = new Date(now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate())
-      // console.log(new Date(this.lessonScheduleDetail.endDate).getTime())
-      // console.log(new Date(this.lessonScheduleDetail.startDate).getTime())
-      // console.log(new Date(this.lessonScheduleDetail.startDate).getTime() - 24 * 60 * 60 * 1000)
-      // console.log(date.getTime())
-      return date.getTime() < new Date(this.lessonScheduleDetail.startDate).getTime() - 24 * 60 * 60 * 1000 || 
-          date.getTime() > new Date(this.lessonScheduleDetail.endDate).getTime() || date.getTime() < d.getTime() - 24 * 60 * 60 * 1000
-          // date.getTime() < Date.now() ||
-          // date.getTime() < d.getTime()
-          // date.getTime() < new Date(this.lessonScheduleDetail.startDate).getTime() ||
-          // date.getTime() > new Date(this.lessonScheduleDetail.endDate).getTime() 
-          // date.getTime() <= d.getTime()
+    async listCanNotAppoint() {
+      this.canNotAppointForm.lessonScheduleId = this.lessonScheduleId
+      this.canNotAppointForm.endDate = this.lessonScheduleEndDate
+      console.log("****")
+      const { model } = await appointmentService.listCanNotAppoint(this.canNotAppointForm)
+      this.canNotAppointList = model
+      // .map(item => item.replace(/-0/g, '-'))
+      this.list = this.canNotAppointList.map(item => (new Date(item).getTime()) - 8 * 60 * 60 * 1000)
+      console.log("list")
+      console.log(this.list)
     },
-    homeworkUpload (file) {
+
+    disabledDate(date) {
+      const today_0 = new Date(new Date().toLocaleDateString().replace(/\//g, "-")).getTime()   // 当前日期0点的时间戳
+      console.log(date)
+      console.log(date.getTime())
+      console.log(this.canNotAppointList)
+      console.log(this.list)
+      // this.list  // 这个变量  包含了要禁用的日期   格式为 某个日期0点的时间戳 
+      if (this.lessonScheduleDayLimit) {
+        // 如果限制了可预约时间段  且 可预约时间段最后一天在截止日期之前
+        if ((today_0 + (this.lessonScheduleDayLimit - 1) * 24 * 60 * 60 * 1000) < new Date(this.lessonScheduleDetail.endDate).getTime()) {
+          return this.list.includes(date.getTime()) ||
+            date.getTime() < today_0 ||
+            date.getTime() > (today_0 + (this.lessonScheduleDayLimit - 1) * 24 * 60 * 60 * 1000)
+        }
+        // 如果限制了可预约时间段  且 可预约时间段最后一天在截止日期那天或之后  
+        else {
+          return date.getTime() < today_0 ||
+            date.getTime() > new Date(this.lessonScheduleDetail.endDate).getTime() ||
+            this.list.includes(date.getTime())
+        }
+      }
+      else {
+        return date.getTime() < today_0 ||
+          date.getTime() > new Date(this.lessonScheduleDetail.endDate).getTime() ||
+          this.list.includes(date.getTime())
+      }
+    },
+    homeworkUpload(file) {
       const isRightFile = ['application/pdf', 'application/zip', 'application/x-zip-compressed'].includes(file.type)
       // const isLt10M = file.size / 1024 / 1024 < 10
       if (!isRightFile) {
@@ -498,7 +516,7 @@ export default {
       })
       return false
     },
-    async upload (file) {
+    async upload(file) {
       try {
         const {
           code,
@@ -532,7 +550,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .body-container {
   margin-top: 60px;
   font-size: 14px;
@@ -620,7 +637,9 @@ export default {
       background-color: #fff;
     }
 
-    .appointmentAndHomework, .lesson-contentInfo, .lesson-commentInfo {
+    .appointmentAndHomework,
+    .lesson-contentInfo,
+    .lesson-commentInfo {
       background-color: #fff;
       margin-top: 20px;
     }

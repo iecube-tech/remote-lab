@@ -19,13 +19,15 @@ module.exports = {
     proxy: {
       // changOrigin: true,
       '/dev-api': {
-        target: 'http://10.11.19.104:9093',
+        // target: 'http://192.168.8.108:9093',
+        target: 'http://[::1]:9191',
         pathRewrite: {
           '^/dev-api': ''
         }
       },
       '/local-resource': {
-        target: 'http://10.11.19.104:9093'
+        // target: 'http://192.168.8.108:9093'
+        target: 'http://[::1]:9191',
       },
       // 'https://open.ys7.com': {
       //   'target': 'https://open.ys7.com',

@@ -10,12 +10,15 @@ const appointmentService = {
   listTimePeriod: (query) => {
     return request.post('/appointment/query/lesson-schedule', query)
   },
+  listCanNotAppoint: (query) => {
+    return request.post('/appointment/disable-appoint', query)
+  },
   getDeviceOperating: (data) => {
     return request.post('/appointment/device/operating', data)
   },
   cancel: (data) => {
     return request.post('/appointment/cancel', data)
-  }
+  },
 }
 
 export default appointmentService

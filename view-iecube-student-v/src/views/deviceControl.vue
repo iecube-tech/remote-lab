@@ -148,8 +148,8 @@ export default {
 
         player = new EZUIKit.EZUIKitPlayer({
           id: 'video-container', // 视频容器ID
-          accessToken: 'at.23qmf3425erq3hiy1s9fz9100a5sf0e4-45gybzlgyn-1n6ytc8-3fc4lrdbe',
-          url: 'ezopen://open.ys7.com/K81970910/1.hd.live',
+          accessToken: 'at.cugohu9u94xtr7ui5ajf6rg4029nysho-60tka720ll-0v0r9h4-lh7ma3jlf',
+          url: 'ezopen://open.ys7.com/K93747614/1.hd.live',
           // simple - 极简版; pcLive-pc直播；pcRec-pc回放；mobileLive-移动端直播；mobileRec-移动端回放;security - 安防版;voice-语音版;
           // 使用自定义模板
           template: '92d46ddc8f45417ab373131145645794',
