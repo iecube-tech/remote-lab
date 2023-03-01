@@ -6,6 +6,9 @@ const commentService = {
   },
   list: (query) => {
     return request.post('/comment/student/query', query)
+  },
+  sendemail: (query) => {
+    return request.post('/comment/problem', query)
   }
 
 }

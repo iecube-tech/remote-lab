@@ -389,6 +389,7 @@ export default {
       this.$router.push({
         name: 'deviceControl',
         params: {
+          lessonId: this.lessonId,
           lessonScheduleId: appointment.lessonScheduleId,
           date: appointment.appointmentDate,
           startTime: appointment.startTime,

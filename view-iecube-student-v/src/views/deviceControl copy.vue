@@ -5,7 +5,7 @@
 
         <div class="aside-tittle">
           <span class="lessonDetailName">{{ deviceOperating.lessonName }}</span>
-          <!-- <i class="el-icon-s-fold" style="cursor: pointer" @click="putAway()"></i> -->
+          <i class="el-icon-s-fold" style="cursor: pointer" @click="putAway()"></i>
         </div>
 
         <div class="view-instruction">
@@ -29,43 +29,23 @@
           <div id="video-container" class="video" v-if="deviceOperating.liveUrl"></div>
         </div>
 
-        <div style="margin-top: 30px; margin-left: 20px;">
-          <el-button @click="ChangeDisplayIframeUrl1()">实验内容</el-button>
-          <el-button v-if="device.type === 'MeasurementsLive'" @click="ChangeDisplayIframeUrl2()">仪器操作</el-button>
-          <el-button @click="screen()">全屏</el-button>
-
-        </div>
-
-        <div style="margin-top: 30px; margin-left: 20px; margin-right: 20px;">
-          <div class="tittle">遇到问题？</div>
-          <div style="margin-top: 10px;">
-            <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4 }" placeholder="请输入内容"
-              v-model="commentForm.content">
-            </el-input>
-          </div>
-          <div style="margin-top: 10px; text-align: right;">
-            <el-button @click="toComment()">给老师留言</el-button>
-            <el-popover ref="popover5" placement="top" width="160" v-model="visible2">
-              <p>这个操作将通过远程实验平台发送邮件给老师，确定继续吗？</p>
-              <div style="text-align: right; margin: 0">
-                <el-button size="mini" type="text" @click="visible2 = false">取消</el-button>
-                <el-button type="primary" size="mini" @click="sendEmail()">确定</el-button>
-              </div>
-            </el-popover>
-            <el-button style="margin-left: 20px" v-popover:popover5>发邮件给老师</el-button>
-          </div>
-        </div>
-
-
       </el-aside>
 
       <el-aside width="40px" class="view-aside-off" v-if="!asideVisible">
         <i class="el-icon-s-unfold" @click="putAway()">
         </i>
       </el-aside>
+
       <el-main class="view-main">
-        <iframe id="con_lf_top_div" v-if="displayIframeUrl" :src="displayIframeUrl" frameborder="0" class="view-iframe"
-          allowfullscreen="true"></iframe>
+        <el-tabs v-model="activeName" @tab-click="handleClick">
+          <el-tab-pane v-if="device.type === 'MeasurementsLive'" label="仪器操作" name="first">
+            <iframe v-if="iframeUrl" :src="iframeUrl" frameborder="0" class="view-iframe"></iframe>
+          </el-tab-pane>
+          <el-tab-pane label="实验内容" name="second">
+            <iframe v-if="experimentIframeUrl" :src="experimentIframeUrl" frameborder="0"
+              class="view-iframe-nxg"></iframe>
+          </el-tab-pane>
+        </el-tabs>
       </el-main>
     </el-container>
   </div>
@@ -76,7 +56,6 @@
 import EZUIKit from "ezuikit-js"
 import appointmentService from '@/service/appointment'
 import deviceService from '@/service/device'
-import commentService from '@/service/comment'
 var player = null;
 
 export default {
@@ -111,13 +90,6 @@ export default {
         deviceId: undefined
       },
       activeName: 'second',
-      lessoniD: undefined,
-      displayIframeUrl: undefined,
-      fullscreen: false,
-      commentForm: {
-        content: undefined
-      },
-      visible2: false,
       iframeUrl: undefined,
       experimentIframeUrl: undefined,
       videoLoading: true,
@@ -133,7 +105,6 @@ export default {
     this.appointmentFrom.deviceId = parseInt(this.$route.params.deviceId)
     // this.appointmentFrom.deviceType = parseInt(this.$route.params.type)
     this.appointmentFrom.lessonScheduleId = parseInt(this.$route.params.lessonScheduleId)
-    this.lessonId = parseInt(this.$route.params.lessonId)
     this.fetchData()
 
   },
@@ -156,14 +127,33 @@ export default {
             this.experimentIframeUrl = `${this.deviceOperating.experimentOperationPageUrl}:${this.deviceOperating.deviceId}/vnc.html`
           }
         }
-        this.displayIframeUrl = this.experimentIframeUrl
         this.countDown()
         this.websocket()
+        // if (flvjs.isSupported()) {
+        //   const videoElement = this.$refs.liveVideo
+        //   const flvPlayer = flvjs.createPlayer({
+        //     type: 'flv',
+        //     url: this.deviceOperating.liveUrl
+        //   })
+        //   flvPlayer.attachMediaElement(videoElement)
+        //   flvPlayer.load()
+        //   flvPlayer.play()
+        //   this.videoLoading = false
+        // } else {
+        //   this.$message.warning('您的浏览器暂不支持此类直播链接')
+        // }
+        // 以上为萤石直播播放方式，以下切换萤石监控播放方式。监控播放方式延迟较小
+        console.log("111111111111111")
+        console.log(this.deviceOperating.liveUrl)
+
         player = new EZUIKit.EZUIKitPlayer({
           id: 'video-container', // 视频容器ID
           accessToken: this.deviceOperating.ysAccessToken,
           url: this.deviceOperating.liveUrl,
+          // simple - 极简版; pcLive-pc直播；pcRec-pc回放；mobileLive-移动端直播；mobileRec-移动端回放;security - 安防版;voice-语音版;
+          // 使用自定义模板
           template: '92d46ddc8f45417ab373131145645794',
+          // plugin: ['talk'], // 加载插件，talk-对讲
           width: 450,
           height: 300,
         });
@@ -201,78 +191,6 @@ export default {
         }
       }
     },
-    ChangeDisplayIframeUrl1() {
-      //实验内容  默认页面
-      this.displayIframeUrl = this.experimentIframeUrl
-    },
-    ChangeDisplayIframeUrl2() {
-      //仪器操作
-      this.displayIframeUrl = this.iframeUrl
-    },
-    screen() {
-      let case1 = document.getElementById('con_lf_top_div')
-      if (this.fullscreen) {
-        if (document.exitFullscreen) {
-          document.exitFullscreen()
-        } else if (document.webkitCancelFullScreen) {
-          document.webkitCancelFullScreen()
-        } else if (document.mozCancelFullScreen) {
-          document.mozCancelFullScreen()
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen()
-        }
-      } else {
-        if (case1.requestFullscreen) {
-          case1.requestFullscreen()
-        } else if (case1.webkitRequestFullScreen) {
-          case1.webkitRequestFullScreen()
-        } else if (case1.mozRequestFullScreen) {
-          case1.mozRequestFullScreen()
-        } else if (case1.msRequestFullscreen) {
-          // IE11
-          case1.msRequestFullscreen()
-        }
-      }
-    },
-    toComment() {
-      this.$confirm('确认提交吗？', '提示').then(async () => {
-        this.commentForm.lessonId = this.lessonId
-        console.log(this.commentForm)
-        const {
-          code,
-          message
-        } = await commentService.add(this.commentForm)
-        if (code === 0) {
-          // await this.fetchData()
-          this.commentForm.content = ''
-          this.$message.success('操作成功')
-        } else {
-          this.$message.error(message)
-        }
-      }).catch(e => {
-        console.error(e)
-        this.$message.info('操作取消')
-      })
-    },
-    sendEmail() {
-      this.$confirm('确认发送吗？', '提示').then(async () => {
-        this.commentForm.lessonId = this.lessonId
-        this.commentForm.lessonScheduleID = this.appointmentFrom.lessonScheduleId
-        console.log(this.commentForm)
-        const { code, message } = await commentService.sendemail(this.commentForm)
-        if (code === 0) {
-          // await this.fetchData()
-          this.commentForm.content = ''
-          this.$message.success('操作成功')
-        } else {
-          this.$message.error(message)
-          this.$message.error(message2)
-        }
-      }).catch(e => {
-        console.error(e)
-        this.$message.info('操作取消')
-      })
-    },
     countDown() {
       const end = new Date(this.$route.params.date + ' ' + this.$route.params.endTime)
 
@@ -304,7 +222,6 @@ export default {
           this.deviceOperating.liveUrl = ''
           this.iframeUrl = ''
           this.experimentIframeUrl = ''
-          this.displayIframeUrl = null
           clearInterval(p)
         }
       }, 1000)
@@ -406,9 +323,8 @@ export default {
     margin-left: 20px;
     margin-top: 20px;
     padding: 0;
-    // overflow: hidden;
-    // height: 100%;
-    // background-color: #fff;
+    overflow: hidden;
+    background-color: #fff;
 
     ::v-deep .el-tabs__nav {
       margin-left: 20px;
@@ -422,11 +338,10 @@ export default {
 
     .view-iframe {
       // margin 调整后需要调整这里的 30px
-      // height: calc(100vh + 30px - 80px);
-      height: 98%;
+      height: calc(100vh + 30px - 80px);
       width: 100%;
       // 部分隐藏
-      // margin-top: -50px;
+      margin-top: -48px;
       // 全部隐藏
       // margin-top: -88px;
     }
