@@ -27,7 +27,7 @@ spring:
             enable: true
             required: true
           ssl:
-            enable: true
+            enable: false
           socketFactory:
             port: 465
             class: javax.net.ssl.SSLSocketFactory
@@ -107,10 +107,11 @@ email:
   template:
     user-activate: classpath:template/user_activate_email.ftl
     user-reset-password: classpath:template/user_reset_password_email.ftl
+    student-problems: classpath:template/student_problems.ftl
 ys:
   host: 'https://open.ys7.com'
-  app-key: '69e0767f81634f4daa2b87b2869f4666'
-  secret: '10c0b348d55bbc5bea2ef3262e83b823'
+  app-key: '5714850ab2174d868eb99e8916099e1f'
+  secret: 'b78c1c789ada73f50d91e7021c7e4b94'
 
 business:
   user:

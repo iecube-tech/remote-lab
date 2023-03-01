@@ -29,4 +29,6 @@ public interface CommentService {
      */
     void top(Long id);
 
+    void sendEmail(CommentDTO dto);
+
 }

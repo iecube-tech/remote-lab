@@ -14,6 +14,7 @@ public class CommentDTO {
     private Long creatorId;
     private Date createTime;
     private Boolean top;
+    private long lessonScheduleID;
     private String lessonName;
     private String creatorName;
     private String email;

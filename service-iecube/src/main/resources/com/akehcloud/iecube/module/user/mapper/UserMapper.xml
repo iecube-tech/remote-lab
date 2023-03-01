@@ -13,6 +13,10 @@
         (<foreach collection="studentIds" separator="," item="item">#{item}</foreach>)
     </select>
 
+    <select id="getById" resultType="com.akehcloud.iecube.module.user.dto.UserDTO">
+        SELECT * FROM user_info WHERE id=#{id}
+    </select>
+
     <select id="list" resultType="com.akehcloud.iecube.module.user.dto.UserDTO">
         SELECT * FROM user_info
         <where>

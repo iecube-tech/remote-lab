@@ -11,6 +11,7 @@ import java.util.List;
 public class UserQO extends AbstractDynamicQO {
 
     private List<Long> idIn;
+    private long id;
     private String keywords;
     private String num;
     private String faculty;
