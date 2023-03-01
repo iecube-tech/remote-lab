@@ -19,4 +19,6 @@ public interface UserMapper {
 
     Long count(UserQO qo);
 
+    UserDTO getById(UserQO qo);
+
 }

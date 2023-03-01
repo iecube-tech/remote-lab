@@ -60,4 +60,12 @@ public class CommentController extends BaseController {
         AssertUtils.notNull(id, "参数错误");
         commentService.top(id);
     }
+
+    @PostMapping("/problem")
+    public  void sendProblem(@RequestBody CommentDTO dto){
+        dto.setCreatorId(currentUserId());
+        dto.setSchoolId(currentSchoolId());
+        commentService.sendEmail(dto);
+//        commentService.save(dto);
+    }
 }

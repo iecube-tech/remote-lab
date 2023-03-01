@@ -14,4 +14,7 @@ public class CommentQO extends AbstractDynamicQO {
     private String grade;
     private String faculty;
     private Long teacherId;
+    private long lessonScheduleID;
+    private long creatorId;
+    private String content;
 }

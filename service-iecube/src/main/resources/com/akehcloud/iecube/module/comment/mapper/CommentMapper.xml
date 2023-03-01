@@ -24,6 +24,11 @@
         <result column="reply_creator_id" property="creatorId"/>
         <result column="reply_creator_name" property="creatorName"/>
     </resultMap>
+    <resultMap id="LessonScheduleDTO" type="com.akehcloud.iecube.module.lessonschedule.dto.LessonScheduleDTO">
+        <id column="id" property="id"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="lesson_id" property="lessonId"/>
+    </resultMap>
 
     <insert id="save">
         INSERT INTO comment
@@ -162,5 +167,11 @@
                  LEFT JOIN reply r ON r.comment_id = c.id
                  LEFT JOIN user_info ui ON ui.id = r.creator_id
         WHERE c.id = #{id};
+    </select>
+
+    <select id="LessonScheduleDetail" resultMap="LessonScheduleDTO">
+        SELECT lesson_id,creator_id
+        FROM lesson_schedule
+        WHERE id=#{lessonScheduleID}
     </select>
 </mapper>
