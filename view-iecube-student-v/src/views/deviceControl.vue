@@ -2,7 +2,9 @@
   <div class="view">
     <el-container>
       <el-aside width="480px" class="view-aside" v-if="asideVisible">
-
+        <el-row class="aside-tittle">
+          <el-button type="text" @click="goback()"> {{ '<返回' }} </el-button>
+        </el-row>
         <div class="aside-tittle">
           <span class="lessonDetailName">{{ deviceOperating.lessonName }}</span>
           <!-- <i class="el-icon-s-fold" style="cursor: pointer" @click="putAway()"></i> -->
@@ -138,6 +140,9 @@ export default {
 
   },
   methods: {
+    goback() {
+      this.$router.go(-1)
+    },
     fetchData() {
       this.getDeviceOperating()
     },
@@ -157,8 +162,7 @@ export default {
           }
         }
         this.displayIframeUrl = this.experimentIframeUrl
-        this.countDown()
-        this.websocket()
+
         player = new EZUIKit.EZUIKitPlayer({
           id: 'video-container', // 视频容器ID
           accessToken: this.deviceOperating.ysAccessToken,
@@ -168,7 +172,8 @@ export default {
           height: 300,
         });
         window.player = player;
-
+        this.countDown()
+        this.websocket()
       } catch (e) {
         console.error(e.message)
         this.$message.error(e.message)
@@ -299,13 +304,13 @@ export default {
         }
 
         if (this.residueMin === 0 && this.residueSec === 0) {
-          player.stop()
-          player.destroy()
           this.deviceOperating.liveUrl = ''
           this.iframeUrl = ''
           this.experimentIframeUrl = ''
           this.displayIframeUrl = null
-          clearInterval(p)
+          // this.$router.go(0)
+          player.stop()
+          // clearInterval(p)
         }
       }, 1000)
     },
@@ -334,7 +339,7 @@ export default {
       margin-right: 20px;
       width: 440px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
 
       .lessonDetailName {
         font-size: 16px;

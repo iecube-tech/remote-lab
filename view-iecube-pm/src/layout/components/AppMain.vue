@@ -1,6 +1,7 @@
 <template>
   <section class="app-main">
     <transition name="fade-transform" mode="out-in">
+      <!-- 一级路由出口 -->
       <router-view :key="key" />
     </transition>
   </section>
@@ -25,6 +26,7 @@ export default {
   position: relative;
   overflow: hidden;
 }
+
 .fixed-header+.app-main {
   padding-top: 50px;
 }
