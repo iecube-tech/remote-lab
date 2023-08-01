@@ -159,6 +159,7 @@ export default {
           }
           else {
             this.experimentIframeUrl = `${this.deviceOperating.experimentOperationPageUrl}:${this.deviceOperating.deviceId}/vnc.html`
+            console.log(this.experimentIframeUrl);
           }
         }
         this.displayIframeUrl = this.experimentIframeUrl
@@ -172,6 +173,7 @@ export default {
           height: 300,
         });
         window.player = player;
+        console.log('test');
         this.countDown()
         this.websocket()
       } catch (e) {
@@ -280,13 +282,11 @@ export default {
     },
     countDown() {
       const end = new Date(this.$route.params.date + ' ' + this.$route.params.endTime)
-
       const ms = end.getTime() - new Date().getTime()
       const min = ms / 1000 / 60
       const sec = ms / 1000 % 60
       this.residueMin = parseInt(min.toString()) < 0 ? 0 : parseInt(min.toString())
       this.residueSec = parseInt(sec.toString()) < 0 ? 0 : parseInt(sec.toString())
-
       const p = setInterval(() => {
         const ms = end.getTime() - new Date().getTime()
         const min = ms / 1000 / 60
@@ -308,11 +308,13 @@ export default {
           this.iframeUrl = ''
           this.experimentIframeUrl = ''
           this.displayIframeUrl = null
-          // this.$router.go(0)
+          this.$router.go(-1)
           player.stop()
-          // clearInterval(p)
+          clearInterval(p)
         }
+        console.log('tset2');
       }, 1000)
+      console.log('test3');
     },
     putAway() {
       this.asideVisible = !this.asideVisible

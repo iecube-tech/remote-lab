@@ -304,8 +304,8 @@ export default {
         this.lessonScheduleId = lessonSchedule.id
         this.lessonScheduleIdEndDate = lessonSchedule.endDat
         this.lessonScheduleDayLimit = lessonSchedule.dayLimit
-        console.log(this.lessonScheduleDayLimit)
-        console.log(this.lessonScheduleDayLimit - 1)
+        // console.log(this.lessonScheduleDayLimit)
+        // console.log(this.lessonScheduleDayLimit - 1)
         this.studentLessonScheduleDetail = lessonSchedule.studentLessonScheduleDetail
         this.homeworkAttachmentList = lessonSchedule.homeworkAttachmentList
         this.homework = lessonSchedule.homework
@@ -470,10 +470,10 @@ export default {
 
     disabledDate(date) {
       const today_0 = new Date(new Date().toLocaleDateString().replace(/\//g, "-")).getTime()   // 当前日期0点的时间戳
-      console.log(date)
-      console.log(date.getTime())
-      console.log(this.canNotAppointList)
-      console.log(this.list)
+      // console.log(date)
+      // console.log(date.getTime())
+      // console.log(this.canNotAppointList)
+      // console.log(this.list)
       // this.list  // 这个变量  包含了要禁用的日期   格式为 某个日期0点的时间戳 
       if (this.lessonScheduleDayLimit) {
         // 如果限制了可预约时间段  且 可预约时间段最后一天在截止日期之前
