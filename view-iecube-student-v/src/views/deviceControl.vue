@@ -24,7 +24,7 @@
             <span v-else style="color: brown">离线</span>
           </div>
 
-          <div class="tittle" v-if="deviceOperating.liveUrl">操作视频</div>
+          <div class="tittle" v-if="deviceOperating.liveUrl">设备状态直播</div>
           <!-- 以下是萤石直播方式播放 -->
           <!-- <video ref="liveVideo" class="video" controls muted autoplay /> -->
           <!-- 以下采用监控播放的方式 -->
@@ -163,7 +163,14 @@ export default {
           }
         }
         this.displayIframeUrl = this.experimentIframeUrl
-
+        // console.log('test');
+        this.countDown()
+        this.websocket()
+      } catch (e) {
+        console.error(e.message)
+        this.$message.error(e.message)
+      }
+      try {
         player = new EZUIKit.EZUIKitPlayer({
           id: 'video-container', // 视频容器ID
           accessToken: this.deviceOperating.ysAccessToken,
@@ -173,12 +180,9 @@ export default {
           height: 300,
         });
         window.player = player;
-        console.log('test');
-        this.countDown()
-        this.websocket()
       } catch (e) {
         console.error(e.message)
-        this.$message.error(e.message)
+        this.$message.warning("设备状态直播不可用")
       }
     },
     websocket() {
@@ -308,13 +312,15 @@ export default {
           this.iframeUrl = ''
           this.experimentIframeUrl = ''
           this.displayIframeUrl = null
-          this.$router.go(-1)
-          player.stop()
           clearInterval(p)
+          if (player != null) {
+            player.stop()
+          }
+          this.$router.go(-1)
         }
-        console.log('tset2');
+        // console.log('tset2');
       }, 1000)
-      console.log('test3');
+      // console.log('test3');
     },
     putAway() {
       this.asideVisible = !this.asideVisible
